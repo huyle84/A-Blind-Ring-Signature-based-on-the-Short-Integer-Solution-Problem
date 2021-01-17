@@ -1,0 +1,831 @@
+\documentclass[runningheads]{llncs}
+%\usepackage[top=2in, bottom=1.5in, left=1in, right=1in]{geometry}
+%\pagestyle{plain}
+%usepackage
+%\usepackage[demo]{graphicx}
+\usepackage{subfig}
+\usepackage{tabularx}
+\usepackage{array,multirow,graphicx}
+\usepackage{float}
+\usepackage{color}
+\usepackage{cite}
+\usepackage{amssymb, extarrows}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amscd}
+\usepackage{enumerate}
+\usepackage{url}
+\usepackage{cancel}
+\usepackage[normalem]{ulem}
+\usepackage{algorithm, algorithmic}
+%\usepackage[a4paper,left=4.0cm,right=3.87cm,top=3.5cm,bottom=3.5cm]{geometry}
+\usepackage{upquote}
+\usepackage{multicol}
+
+%\usepackage{slashbox}  % create diagonal line in tables
+
+%\usepackage{hyperref}
+%\usepackage[nameinlink]{cleveref}
+%\usepackage{tikz}
+%\usepackage{mdframed}
+%\usepackage{textcomp}
+
+%\usepackage{graphicx}
+\usepackage{color}
+\usepackage[export]{adjustbox}
+\usepackage{parcolumns}
+
+
+\usepackage{mwe}
+%\usepackage{showframe}
+
+
+\renewcommand{\algorithmicrequire}{\normalsize \textbf{Input:}}
+\renewcommand{\algorithmicensure}{\normalsize \textbf{Output:}}
+\renewcommand{\algorithmicwhile}{\normalsize \textbf{while}}
+
+ \renewcommand\UrlFont{\color{blue}\rmfamily}
+%def
+\def\N{\mathbb{N}}
+\def\Z{\mathbb{Z}}
+\def\Q{\mathbb{Q}}
+\def\R{\mathbb{R}}
+\def\C{\mathbb{C}}
+\def\F{\mathbb{F}}
+
+
+\usepackage{color}
+\usepackage{listings} 
+\usepackage{xspace}  % to allow for text macros that don't eat space 
+\usepackage[misc,geometry]{ifsym}
+
+
+\lstdefinelanguage{Sage}[]{Python}
+{morekeywords={True,False,sage,singular},
+	sensitive=true}
+\lstset{frame=none,
+	showtabs=False,
+	showspaces=False,
+	showstringspaces=False,
+	commentstyle={\ttfamily\color{dredcolor}},
+	keywordstyle={\ttfamily\color{dbluecolor}\bfseries},
+	stringstyle ={\ttfamily\color{dgraycolor}\bfseries},
+	language = Sage,
+	basicstyle={\small \ttfamily},
+	aboveskip=.3em,
+	belowskip=.1em
+}
+\definecolor{dblackcolor}{rgb}{0.0,0.0,0.0}
+\definecolor{dbluecolor}{rgb}{.01,.02,0.7}
+\definecolor{dredcolor}{rgb}{0.8,0,0}
+\definecolor{dgraycolor}{rgb}{0.30,0.3,0.30}
+\newcommand{\dblue}{\color{dbluecolor}\bf}
+\newcommand{\dred}{\color{dredcolor}\bf}
+\newcommand{\dblack}{\color{dblackcolor}\bf}
+
+\renewcommand{\emph}[1]{{\dblack{#1}}}
+
+\newcommand{\Sage}{{\color{dbluecolor}\sf Sage}\xspace}
+
+
+
+\newcommand{\keywords}[1]{\par\addvspace\baselineskip
+	\noindent\keywordname\enspace\ignorespaces#1}
+
+
+
+\begin{document}
+	\title{\textbf{A Blind Ring Signature based on the Short Integer Solution Problem}}
+\titlerunning{A Blind Ring Signature Based on \textsf{SIS}}
+
+	\author{Huy Quoc Le\inst{1}$^\textrm{(\Letter)(0000-0003-4862-6048)}$, Dung Hoang Duong\inst{2}, Willy Susilo\inst{2}}
+	
+	\authorrunning{H. Q. Le, D. H. Duong and W. Susilo}
+	\institute{
+		Graduate School of Mathematics, Kyushu University,\\
+		744 Motooka, Nishi-ku, Fukuoka-shi, Fukuoka-ken, 819-0395, Japan.
+		\\
+		\email{q-le@math.kyushu-u.ac.jp}\\
+		\and		
+		Institute of Cybersecurity and Cryptology, School of Computing and Information Technology, University of Wollongong, 
+		Northfields Avenue, Wollongong NSW 2522, Australia.\\
+		\email{\{hduong,wsusilo\}@uow.edu.au} 
+	}
+	\maketitle
+
+  \begin{abstract}
+	A blind ring signature scheme is a combination of a ring signature and a blind signature, which allows not only  any member of a group of signers to sign on a message on behalf of the group without revealing its identity but also the user who possesses the message to blind it before sending to the group to be signed. 
+	%In this paper, we propose, for the first time, a blind ring signature based on lattices. Our scheme is proven to be secure in random oracle model under the hardness of the \textsf{SIS} problem.
+	Blind ring signature schemes are essential components in e-commercial, e-voting etc. 
+%	At ASIACRYPT 2010, R{\"u}ckert prosed a first lattice-based blind signature scheme from Lyubashevsky's ID scheme using Fiat-Shamir transformation. Also, at AfricaCrypt 2013, Aguilar-Melchor et al. introduced the first ring signature scheme based on lattices, which was adapted from the signature scheme by Lyubashevsky whose security reduces to the hardness of the short integer solution (\textsf{SIS}) problem. 
+ In this paper, we propose the first blind ring signature scheme based on lattices. More precisely, our proposed scheme is proven to be secure in random oracle model under the hardness of the short integer solution (\textsf{SIS}) problem.
+\end{abstract}
+
+
+\section{Introduction}
+Ring signatures were first introduced by Rivest et al.~\cite{RST01} in 2001. In such a scheme, a signer within a group can form a ring consisting of members in the group to sign a message on behalf of this ring, without using the secret keys of those members. A verifier can easily verify that the signature belongs to the ring using the ring public keys, but cannot reveal the identity of the signer, hence ensures the anonymity of the signer. Ring signatures can be used for whistle blowing~\cite{RST01} or anonymous membership authentication for ad hoc groups~\cite{BSS02}. They can be used to derive other primitives such as deniable ring authentication~\cite{SM03} or perfect concurrent signatures~\cite{SMZ04}. Due to flexibility (forming a ring and signing messages without a group leader) and anonymity property of ring signatures, there have been recently found interesting applications of ring signatures in cryptocurrencies~\cite{CryptoNote}.   Another important kind of protocol that provides anonymity is blind signatures, first proposed by Chaum \cite{Chau83} for untraceable payments in 1983. Blind signatures allow a person to get a message signed by a signer  without revealing any information about the message to the signer, and hence which provide the anonymity of the signed message. It therefore makes blind signatures useful in electronic auctions and electronic voting systems. 
+
+In some real-life applications, such as banking, we must make a single e-bank system more scalable by supporting many banks and adding some other properties like strong anonymity of the signing banks and unlinkability of two different signatures. It's therefore necessary to combine blind and ring signatures into one, called \textit{blind ring signatures}. Clearly, blind ring signatures find applications in various real-life scenarios that are required a combination of ring signatures and blind signatures; for examples, multi authority e-voting and distributed e-cash systems. Some examples of such contexts can be found such as in \cite{HL06, WZSM06, GS13}.
+
+%\textbf{Related works.} In 2006, Herranz and Laguillaumie \cite{HL06} proposed a pairings-based  blind ring signature scheme on algebraic curves which is provably secure  in the random oracle model. Also in 2006, Wu et al. \cite{WZSM06} showed that the blindness of some existing blind ring signature schemes is easy to break by a malicious anonymous signer of dynamic groups. And \cite{WZSM06} also proposed a static blind ring signature  to avoid the attack whose security is provable under the extended ROS assumptions in the random oracle model plus the generic group model. Later, Zhang et al. \cite{ZCLL10} proposes a blind ring signature scheme based on algebraic curves without using pairings. The authors gave the formal security proof of anonymity, blindness and unforgeability of our scheme in the random oracle model.
+
+With the threat of Shor's quantum algorithms~\cite{Sho97}, the research community has been moving towards to post-quantum cryptography~\cite{BBD08} in which lattice-based cryptography is one of the most promising candidates due to its high asymptotic efficiency and parallelism, as well as security under worst-case intractability assumptions. At ASIACRYPT 2009, Lyubashevksy~\cite{Lyu09} constructed a lattice-based identification scheme based on ideal lattices, and obtained a signature scheme via Fiat-Shamir's transformation~\cite{FS86}. %Even though it is based on ideal lattices and hence gains efficiency, its signature size is still very large for practice.
+ Lyubashevsky later improved to a new signature scheme~\cite{Lyu12} whose security is based on the \textsf{SIS} problem. 
+At AfricaCrypt 2013~\cite{ABB+13}, Aguilar-Melchor et al. proposed the first lattice-based ring signature scheme. Their construction is based on the scheme of Lyubashevsky~\cite{Lyu09} over ideal lattices. In 2018, Wang et al.~\cite{WZZ18} proposed a construction of ring signature from an improved scheme of Lyubashevsky~\cite{Lyu12}. 
+%However, the signature size is still large (following that of~\cite{Lyu12}) and there are some flaws in their proofs. 
+Regarding blind signatrues, the first scheme based on ideal lattices was introduced by R\"uckert \cite{Ruc10} at Asiacrypt 2010. Recently, in 2018, Zhang et al.~\cite{ZJZ+18} also gave a new post-quantum construction for blind signature. %However, the authors used the hybrid arguments as in~\cite{Lyu12} to prove its one-more property in which the random oracle is programmed to output the desired challenge, which is not correct in the context of their blind signature scheme. 
+
+In this paper, inspired from the work of R\"uckert~\cite{Ruc10} and two aforementioned works on ring signature~\cite{WZZ18} and blind signature~\cite{ZJZ+18}, we construct, for the first time, a blind ring signature scheme based on lattices. The  scheme is provably secure (i.e., anonymous, blind and one-more unforgeable) in the random oracle model under the hardness of the \textsf{SIS} problem. Our work exploits the rejection sampling technique \cite{Lyu12} and the trapdoor technique \cite{GPV08}, which are fundamental tools used in lattice-based cryptography. 
+\section{Preliminaries} \label{pre}
+\textit{Notations.}
+%Throughout this work, $q$ is a prime number and elements in $\mathbb{Z}_q$ are centered to belong to $(-q/2, q/2]$. 
+For a positive integer $l$, we write $[l]$ for the set $\{1, 2, \cdots , l\}$. A column vector is denoted by small bold letter, e.g., vector $\mathbf{v}$. A matrix is denoted by bold capital letter, e.g., $\mathbf{A}$. 
+%    For a vector $\mathbf{v}$ (resp., a matrix $\mathbf{A}$), we write $\mathbf{v}^t$ (resp., $\mathbf{A}^t$) for its transpose. 
+Sometimes we write $a_i$, the $i$-th component of a vector $\mathbf{a}=(a_1, \cdots, a_n)$, by $\mathbf{a}[i]$. The notation $\mathbf{A}[i]$ is also used to stand for the $i$-th column of a matrix $\mathbf{A}$. The Gram-Schmidt orthogonal matrix of a matrix $\mathbf{A}$ will be written as $\tilde{\mathbf{A}}$. By notation ``$x:=a$'' we mean that the variable $x$ is assigned the value $a$ or $x$ is defined as $a$.  %The norm mentioned in this work is the usual Euclidean norm which is denoted and defined by  $\Vert \mathbf{v} \Vert:=\sqrt{\sum_{i \in [n]}v_i^2}$ for a vector  $\mathbf{v}=(v_1,...,v_n)$. Sometimes we refer to the $1$-norm defined as $\Vert \mathbf{v} \Vert_1:=\sqrt{\sum_{i \in [n]}\vert v_i \vert}$.  The (Euclidean) norm of a column matrix  (or a set of vector) $\mathbf{A}=\{\mathbf{a}_1, \cdots, \mathbf{a}_n\}$ is defined as $\Vert \mathbf{A} \Vert:=\max_i{\Vert \mathbf{a}_i \Vert}$. Correspondingly,  $\Vert \mathbf{A} \Vert:=\max_i{\Vert \mathbf{a}_i \Vert}$ and $\Vert \mathbf{A} \Vert_{1}:=\max_i{\Vert \mathbf{a}_i \Vert_{1}}$. We only work with all logarithms of base 2 (written as $\log(.)$).
+ We write $a \leftarrow_{\$} A$ to say that $a$ is sampled uniformly at random from the discrete set $A$; while if  $\mathcal{D}$ is a probability distribution, then $a \leftarrow \mathcal{D}$ means that $a$ is sampled according to $\mathcal{D} $. In case $\mathcal{A}$ is an algorithm, we write $a \leftarrow \mathcal{A}$ to say that $a$ is an output of $\mathcal{A}$.
+  
+  
+%\noindent    \textbf{Lattices.} \label{lat}
+A \textit{lattice} is a set of all integral combinations of given linearly independent vectors. Formally, given a matrix $\mathbf{A}=[\mathbf{a}_1, \cdots, \mathbf{a}_m]\in \mathbb{R}^{n \times m}$ such that $\mathbf{a}_i$'s are linearly independent, a lattice of \textit{basis} $\mathbf{A}$ is the set
+$\mathcal{L}(\mathbf{A}):=\{\sum_{i \in [m]}\mathbf{a}_iz_i: z_i\in \mathbb{Z}\}$. For such a lattice, we call $n$ the \textit{dimension} of $\mathcal{L}(\mathbf{A})$.
+   Take for example, for a random matrix $\mathbf{A} \leftarrow_{\$} \mathbb{Z}^{n \times m}$, the following are also lattices, called \textit{$q$-ary lattices}: $$\Lambda=\{\mathbf{v} \in \mathbb{Z}^m: \mathbf{v}=\mathbf{A}^{\top}\mathbf{z} \text{ (mod } q) \text { for some } \mathbf{z} \in \mathbb{Z}^{n} \},$$  \begin{equation}\label{eq}    \Lambda_q^{\bot}(\mathbf{A})=\{\mathbf{z} \in \mathbb{Z}^m: \mathbf{A}\mathbf{z}=\mathbf{0} \text{ (mod } q), \text{ where } \mathbf{A} \leftarrow_{\$} \mathbb{Z}^{n \times m} \}.   \end{equation}
+The \textit{first minimum} of a lattice $\mathcal{L}$ is defined as      $\lambda_1(\mathcal{L}):=\min_{\mathbf{v} \in \mathcal{L} \setminus \{\textbf{0}\}}\Vert \mathbf{v}\Vert$. The \textit{$i$-th minimum} of a lattice $\mathcal{L}$ of dimension $n$ is denoted by and defined as      $\lambda_i(\mathcal{L}):=\min\{r: \dim(\text{span}(\mathcal{L} \cap \mathcal{B}_n(0,r))) \geq i\}$, where $\mathcal{B}_n(0,r)=\{\mathbf{x} \in \mathbb{R}^n: \Vert \mathbf{x}\Vert \leq r \}$.   
+The $\gamma$-\textsf{SIVP} problem is, given a basis $\mathbf{A}$ of a lattice $ \mathcal{L}(\mathbf{A}) $, to search for a set of $n$ linearly independent lattice vectors $\mathbf{S} \subset \mathcal{L}(\mathbf{A})$ such that $\Vert  \mathbf{S} \Vert \leq \gamma \lambda_n(\mathbf{A})$. 
+
+% The \textit{shortest vector problem} (\textsf{SVP}) in lattices formally stated as follows: Given a basis $\mathbf{A}$ of a lattice $\mathcal{L}(\mathbf{A})$, \textsf{SVP} is to find the shortest nonzero vector in $\mathcal{L}(\mathbf{A})$, i.e., vector $\mathbf{v}_0 \in  \mathcal{L}(\mathbf{A})$ such that $\Vert \mathbf{v}_0 \Vert=\lambda_1(\mathcal{L}(\mathbf{A}))$.
+
+%\noindent    \textbf{The \textsf{SIS} Problem.}
+The security of our blind ring signature scheme will be based on the average-case assumption of the short integer solution (\textsf{SIS}) problem. 
+
+%    \begin{definition}[\textsf{SIS$_{q,n,m, \beta}$}] \label{def1}
+%        Given a random matrix $\mathbf{A} \leftarrow \mathbb{Z}_q^{n \times m}$ and a positive real number $\beta$, the small integer problem \textsf{SIS$_{q,n,m, \beta}$} is to find a vector $\mathbf{z}\in \mathbb{Z}^{m} \setminus \{\mathbf{0}\}$ such that $\mathbf{A}\mathbf{z} =\mathbf{0} \text{ (mod } q)$ and $\Vert \mathbf{s}\Vert \leq \beta.$
+%    \end{definition}
+%One can also consider the inhomogeneous version (called \textsf{ISIS}) stated in the same way exception that $\mathbf{A}\mathbf{z} =\mathbf{u} \text{ (mod } q)$, given $\mathbf{u} \leftarrow \mathbb{Z}_q^{n}$. Formally,
+
+
+\begin{definition}[\textsf{SIS} Problem] \label{def2}
+	Given a random matrix $\mathbf{A} \leftarrow_{\$} \mathbb{Z}_q^{n \times m}$, a vector $\mathbf{u} \leftarrow_{\$} \mathbb{Z}_q^{n}$ and a positive real number $\beta$, the inhomogeneous small integer problem $\mathsf{ISIS}_{q,n,m, \beta}$ is to find a vector $\mathbf{z}\in \mathbb{Z}^{m} \setminus \{\mathbf{0}\}$ such that $\mathbf{A}\mathbf{z} =\mathbf{u} \text{ (mod } q)$ and $\Vert \mathbf{z}\Vert \leq \beta.$  In the case $\mathbf{u}=\mathbf{0}$, we have the homogeneous small integer problem, named $\mathsf{SIS}_{q,n,m, \beta}$.
+\end{definition}
+
+
+One can prove that the hardness of \textsf{SIS} and \textsf{ISIS} are essentially equivalent for typical parameters \cite[Chapter 4]{Pei16}. 
+\iffalse
+The following lemma gives a condition on parameters for the existence of a solution to the \textsf{SIS} problem.
+
+\begin{lemma}[Lemma 5.2 in \cite{MR07}] \label{lemso}
+	For any $q$, matrix $\mathbf{A} \in \mathbb{Z}_q^{n \times m}$ and $\beta \geq \sqrt{m}q^{n/m}$, the \textsf{SIS$_{q,n,m, \beta}$} has at least one solution.
+\end{lemma}
+
+\fi
+The \textsf{SIS$_{q,n,m, \beta}$} problem can be seen as an average-case short vector problem on the $q$-ary lattice $\Lambda_q^{\bot}(\mathbf{A})$ defined as in Equation \eqref{eq} which requires to  find a sufficiently short nonzero vector in $\Lambda_q^{\bot}(\mathbf{A})$. The \textsf{SIS} problem was first introduced in by Ajtai in his seminal work \cite{Ajt96}. He proved that solving the \textsf{SIS} problem can be reduced to solving certain worst-case problems in lattices. Then Miciancio and Regev \cite{MR07} gave a more tighten reduction saying that for large enough $q$, solving \textsf{SIS} as hard as solving $\tilde{O}(\beta\sqrt{n})$-\textsf{SIVP} problem in all lattices in dimension $n$.  
+
+%\noindent    \textbf{Gaussian Distribution.}
+
+%    \begin{definition}[\textbf{Definition 4.1 of \cite{Lyu12}}] The continuous Gaussian distribution over $\mathbb{R}^m$ centered at $\mathbf{v}$ with standard deviation $\sigma$ is defined by the function $\rho_{\mathbf{v}, \sigma}^m(\mathbf{x})=\left( \frac{1}{\sqrt{2\pi \sigma^2}}\right)^m e^{\frac{-\Vert \mathbf{x}-\mathbf{v}\Vert^2 }{2 \sigma^2}}.$ If $\mathbf{v}=\mathbf{0}$, we just simply write  $\rho_{ \sigma}^m(\mathbf{x})$.    \end{definition}
+
+
+
+
+
+\begin{definition}[Discrete Gaussian Distribution, \textbf{Definition 4.2 of \cite{Lyu12}}] The discrete Gaussian distribution over $\mathbb{Z}^m$ centered at some $\mathbf{v} \in \mathbb{Z}^m$ with standard deviation $\sigma$ is defined as $\mathcal{D}_{\mathbf{v}, \sigma}^m(\mathbf{x}):=\rho_{\mathbf{v}, \sigma}^m(\mathbf{x})/\rho_{\mathbf{v}, \sigma}^m(\mathbb{Z}^m),$ where $\rho_{\mathbf{v}, \sigma}^m(\mathbf{x}):=\left( \frac{1}{\sqrt{2\pi \sigma^2}}\right)^m e^{\frac{-\Vert \mathbf{x}-\mathbf{v}\Vert^2 }{2 \sigma^2}}$ and $\rho_{\mathbf{v}, \sigma}^m(\mathbb{Z}^m):=\sum_{\mathbf{x}\in \mathbb{Z}^m}\rho_{\mathbf{v}, \sigma}^m(\mathbf{x})$.
+	
+\end{definition}
+   Some basic facts relating to the discrete Gaussian distribution are summarized in the following lemmas:    
+\begin{lemma}[Lemma 4.3 in \cite{Lyu12}] \label{lem6} 
+	\begin{enumerate}[(i)]
+		\item For any $k>0$, $\Pr[\vert z \vert >k\sigma, z\leftarrow \mathcal{D}_\sigma^1] \leq 2e^{\frac{-k^2}{2}}$,
+		\item     For any $\mathbf{v} \in \mathbb{Z}^m$, and any $\sigma, r>0$ ,
+		$\Pr\left[ \vert \langle \mathbf{x},\mathbf{v}\rangle \vert>r: \mathbf{x}\leftarrow \mathcal{D}_\sigma^m\right] \leq 2e^{-\frac{r^2}{2\Vert \mathbf{v}\Vert^2\sigma^2}}.$
+	\end{enumerate}
+\end{lemma}
+
+\begin{remark}\label{rem1}
+	In Lemma \ref{lem6}(i), if $k=12$ then
+	$\vert z \vert > 12 \sigma$ with probability at most $2^{-100}$. 
+	Similarly, in Lemma \ref{lem6}(ii), if we choose $r=12\Vert \mathbf{v} \Vert \sigma $ then
+	$\vert \langle \mathbf{x},\mathbf{v}\rangle \vert \geq 12\Vert \mathbf{v} \Vert \sigma$ with probability at most $2^{-100}$. 
+\end{remark}    
+
+\begin{lemma}[\textbf{Lemma 4.4 in \cite{Lyu12}}] \label{lem2}  For any $\eta>0$, we have $\Pr[\Vert \mathbf{z} \Vert >\eta\sigma\sqrt{m}, \mathbf{z} \leftarrow \mathcal{D}_\sigma^m] \leq \eta^m e^{\frac{m}{2}(1-\eta^2)}.$
+	
+\end{lemma}
+
+
+\begin{remark}\label{rem3}
+	In Lemma \ref{lem2}, the function $\eta^m e^{\frac{m}{2}(1-\eta^2)}$ is decreasing either in $m$ (if $\eta$ fixed) or in $\eta$ (if $m$ fixed). See Table \ref{tabex} for example. Clearly we need $\eta>1$ as small as possible. Hence, with typical large enough $m$, one usually chooses $\eta \in [1.1, 1.3]$.
+\end{remark}
+
+
+
+\begin{table} 
+	\centering
+	\begin{tabular}{c | c  |c |c}
+		&$m=50$&$m=100$&$m=200$\\
+		\hline
+		$\eta=1.1$&0.61601& 0.37947& 0.14399\\
+		$\eta=1.3$&0.01605& 0.00026& 0.00000007\\
+		$\eta=3$&$9.7\times 10^{-64}$& $9.9\times 10^{-127}$ & $9.7\times 10^{-253}$\\
+		
+	\end{tabular}
+	\caption{Some specific values for $\eta^m e^{\frac{m}{2}(1-\eta^2)}$}
+	\label{tabex}
+\end{table}
+\begin{lemma}[Lemma 4.5 in \cite{Lyu12}] \label{lem5} 
+	For any $\mathbf{v} \in \mathbb{Z}^m$, if $\sigma=\alpha \Vert \mathbf{v}\Vert$ where $\alpha>0$, we have
+	$\Pr\left[ {\mathcal{D}_{\sigma}^m(\mathbf{x})}/{\mathcal{D}_{\mathbf{v}, \sigma}^m(\mathbf{x})}\leq e^{12/\alpha+1/(2\alpha^2)}: \mathbf{x}\leftarrow \mathcal{D}_\sigma^m\right] \geq 1-2^{-100}.$
+\end{lemma}
+\begin{remark}\label{rem2}
+	In Lemma \ref{lem5}, if we choose, $\alpha=12$, i.e., $\sigma=12\Vert \mathbf{v} \Vert $ then  ${\mathcal{D}_{\sigma}^m(\mathbf{x})}/{\mathcal{D}_{\mathbf{v}, \sigma}^m(\mathbf{x})}$ $\leq e^{1+1/288}$ with probability at least $1-2^{-100}$. 
+\end{remark}    
+%===============================
+
+%\noindent \textbf{Statistical Distance.}
+\begin{definition}[Statistical Distance, \textbf{Definition 8.5 in \cite{MG02}}] Let $X$ and $X'$ be two random variables over a countable set $S$. We define the statistical distance between $X$ and $X'$ by 
+	$\Delta(X,X'):=\frac{1}{2}\sum_{x\in S}\vert \Pr[X=x]-\Pr[X'=x]\vert.$
+\end{definition}
+%The following lemma is a useful fact for our work.
+\begin{lemma}[Triangular Inequality]    \label{lem9}
+	Let $X_1$, $X_2$ and $X_3$ be three random variables over a countable set $S$. We have 
+	$\Delta(X_1,X_3) \leq \Delta(X_1,X_2)+\Delta(X_2,X_3).$
+\end{lemma}
+
+
+\iffalse
+%=============================
+\noindent    \textbf{Rejection Sampling.} \label{resam}
+We will use a variant of the so-called rejection sampling technique for the discrete Gaussian distribution. This is an aborting technique that is typically used in lattice-based cryptography. 
+Using this technique, one can determine when to stop and restart the interactive protocol in order to ensure that no information about the object we want to keep secret will be leaked. More specifically,  given a probability distribution $f$, and a positive constant $M$, we find another probability distribution $g$ such that
+  $f(z) \leq Mg(z)$ for almost $z$. Then sampling $z$ according to $g$ and outputting $z$ with probability $f(z)/ (Mg(z))$ ensures that $z$ follows $f$. If $z$ is not outputted the process must be restarted, and $M$ is the expected number of restarts to have a desired sample. So we should keep $M$ as small as possible. The following lemma focuses on the rejection sampling for the discrete Gaussian distributions. (For the general variant of this technique, see \cite[Lemma 4.7]{Lyu11}.)
+
+    \begin{lemma}[Rejection Sampling, Lemma 4.7 in \cite{Lyu12}]    \label{lem3}
+   Given $f:\mathbb{Z}^n \rightarrow \mathbb{R}$ be a probability distribution and a subset $V\subset \mathbb{Z}^n$, we define on $V$ a probability distribution $h:V \rightarrow \mathbb{R}$. For each $\mathbf{v}\in V$, we denote by $g_\mathbf{v}:\mathbb{Z}^n \rightarrow \mathbb{R}$ a family of probability distributions satisfying that for almost $\mathbf{v}$'s from $h$, there exists a universal upper bound $M\in \mathbb{R}$ and a negligible $\epsilon$ such that
+        $$Pr[Mg_\mathbf{v}(\mathbf{z}) \geq f(\mathbf{z}); \mathbf{z} \leftarrow f] \geq 1-\epsilon.$$ 
+   Then the outputs of the following two algorithms have a negligible statistical distance of  $\epsilon/M$:
+        \begin{enumerate}
+ 
+           \item (Algorithm $\mathcal{A}$): $\mathbf{v} \leftarrow h$, $\mathbf{z} \leftarrow g_\mathbf{v} $, output $(\mathbf{z}, \mathbf{v} )$ with probability $\min(\frac{f(\mathbf{z},)}{Mg_{\mathbf{v}}(\mathbf{z})},1)$, else fail.
+            \item (Algorithm $\mathcal{B}$): $\mathbf{v} \leftarrow h$, $\mathbf{z} \leftarrow f $, output $(\mathbf{z}, \mathbf{v} )$ with probability $\frac{1}{M}$.
+        \end{enumerate}
+    \end{lemma}
+
+
+\fi
+
+\begin{lemma}[Rejection Sampling, Theorem 4.6 in \cite{Lyu12}]
+	\label{lem3}
+	Given a subset $V=\{\mathbf{v}\in \mathbb{Z}^m: \Vert \mathbf{v} \Vert \leq T \}$ and a real number $\sigma=\omega(T\log\sqrt{m})$. Define on $V$ a probability distribution $h:V \rightarrow \mathbb{R}$. Then there exists a universal upper bound $M=O(1)$ such that the outputs of the following two algorithms $\mathcal{A}$ and $\mathcal{B}$ have a negligible statistical distance of  $\Delta(\mathcal{A}, \mathcal{B}):=2^{-\omega(\log m)}/M$:
+	\begin{enumerate}
+		\item ($\mathcal{A}$): $\mathbf{v} \leftarrow h$, $\mathbf{z} \leftarrow \mathcal{D}_{\mathbf{v},\sigma} ^m$, output $(\mathbf{z}, \mathbf{v} )$ with probability $\min(\frac{\mathcal{D}_{\sigma} ^m(\mathbf{z},)}{M\mathcal{D}_{\mathbf{v},\sigma} ^m(\mathbf{z})},1)$.
+		\item ($\mathcal{B}$): $\mathbf{v} \leftarrow h$, $\mathbf{z} \leftarrow \mathcal{D}_{\sigma}^m $, output $(\mathbf{z}, \mathbf{v} )$ with probability $1/M$.
+	\end{enumerate}
+	Moreover, the probability that $\mathcal{A}$ outputs something is at least $(1-2^{-\omega(\log m)})/M$. Particularly, if $\sigma=\alpha T$ for any $\alpha >0$ then $M=e^{12/\alpha+1/(2\alpha^2)}$,  $\Delta(\mathcal{A}, \mathcal{B})=2^{-100}/M$, and the probability that $\mathcal{A}$ outputs something is at least $(1-2^{-100})/M$.
+\end{lemma}
+
+
+
+%\noindent    \textbf{Preimage Sampleable Functions.} \label{trap}
+In order to construct the blind ring signature, we exploit the \textbf{trapdoor technique} proposed in \cite[Subsection 5.3]{GPV08} to generate necessary keys. 
+%We recall two main algorithms of this technique that is adapted from a collection of pseudorandom functions based on the average-case hardness of \textsf{SIS} and/or \textsf{ISIS}  that is introduced in \cite[Subsection 5.3]{GPV08}.
+
+\underline{    \textsf{TrapGen($1^n $)}.} The algorithm on input the security parameter $n$, chooses a prime $q=poly(n)$ and an integer $m>5n\log q$ to output a matrix $\mathbf{A}\in \mathbb{Z}_q^{n \times m}$ and $\mathbf{B}_{\mathbf{A}}\in \mathbb{Z}_q^{m \times m}$ with $\Vert \tilde{\mathbf{B}}_{\mathbf{A}}\Vert\leq  K:=m^{1+\epsilon}$ for any $\epsilon >0$, where \textit{the distribution of $\mathbf{A}$ is statistically close to the uniform over $\mathbb{Z}_q^{n\times m} $} and the matrix $\mathbf{B}_{\mathbf{A}}$ is a good basis of the lattice 
+$\Lambda_q^{\bot}(\mathbf{A})=\{ \mathbf{v} \in \mathbb{Z}^m: \mathbf{A}\mathbf{v}=\mathbf{0} \text{ (mod } q) \}$.
+
+%    \underline{    \textsf{SampleISIS($\mathbf{A}, \mathbf{B}_{\mathbf{A}}, \sigma, \mathbf{y}$)}. }On the input $\mathbf{A}\in \mathbb{Z}_q^{n \times m}$, $\mathbf{B}_{\mathbf{A}}\in \mathbb{Z}_q^{m \times m}$ outputted by \textsf{TrapGen($1^n$)}, a real number $\sigma \geq K \cdot \omega(\sqrt{\log n})$ and  $ \mathbf{y} \in \mathbb{Z}_q^n$, the algorithm returns a (column) random nonzero vector $\mathbf{s} \in D= \{\mathbf{s} \in \mathbb{Z}^m: \Vert \mathbf{s} \Vert \leq  \sigma\sqrt{m}\} $ satisfying that $\mathbf{A}\mathbf{s}=\mathbf{y} \text{ (mod } q)$ with overwhelming probability. Note that, the distribution of $\mathbf{s}$ is actually $\mathcal{D}_{\mathbb{Z},\sigma}^m$.
+%    In the case of infinity norm we can choose the domain $D= \{\mathbf{s} \in \mathbb{Z}^m: \Vert \mathbf{s} \Vert_\infty \leq \sigma \omega(\sqrt{\log {m}}) \}$ for some arbitrary $\omega(\sqrt{\log {m}})$.
+We generalize the trapdoor inversion algorithm \textsf{SampleISIS} in \cite[Subsection 5.3]{GPV08}  to have the following algorithm:
+
+\underline{\textsf{SampleKey($\mathbf{A}, \mathbf{B}_{\mathbf{A}}, \sigma, \mathbf{T}$)}.} The algorithm takes as input $\mathbf{A}\in \mathbb{Z}_q^{n \times m}$, $\mathbf{B}_{\mathbf{A}}\in \mathbb{Z}_q^{m \times m}$ outputted by \textsf{TrapGen($1^n$)}, a real number $\sigma \geq K \cdot \omega(\sqrt{\log n})$ and  matrix $ \mathbf{T} \in \mathbb{Z}_q^{n \times k}$, and returns a random (column) matrix $\mathbf{S} \in \mathbb{Z}^{m \times k}$ such that the $j$-th column $\mathbf{S}[j] \in D= \{\mathbf{s} \in \mathbb{Z}^m: \Vert \mathbf{s} \Vert \leq \sigma\sqrt{m} \}$ for all $j\in[k]$ and that $\mathbf{A}\mathbf{S}=\mathbf{T} \text{ (mod } q)$ with overwhelming probability. The distribution of $\mathbf{S}[j]$ for all $j \in [k]$ is $\mathcal{D}^{m}_{\mathbb{Z},\sigma}$ statistically close to the uniform distribution over $D$.
+
+
+
+%\textbf{String Commitment Functions.}
+In this work, we also exploit the \textbf{commitment function}
+$\mathsf{com}$ maps a pair of two strings ($\mu$,$\mathbf{t}) \in \{0,1\}^* \times \{0,1\}^n$ (called \textit{committed string}) to a \textit{commitment string}  $C:=\mathsf{com}(\mu, \mathbf{t}) \in\{0,1\}^n$ to hide the value of the message $\mu$. For security goal, we need \textsf{com} to have two properties: \textit{statistically hiding} and \textit{computationally binding}.
+The first property ensures that any computationally unbounded algorithm is not able to statistically distinguish two commitment strings $C$ and $C'$ obtained from two distinct committed pairs $(\mu, \mathbf{t}) \neq (\mu', \mathbf{t}')$. The second property says that given a commitment string $C$ obtained from the committed pair of strings $(\mu, \mathbf{t})$ (i.e., $C:=\mathsf{com}(\mu, \mathbf{t})$), no polynomia-time algorithm can find another pair $(\mu', \mathbf{t}')$ with $\mu' \neq \mu$ such that $C=\mathsf{com}(\mu', \mathbf{t}')$. See \cite{HM96, AKKJ08, Ruc10} for more details.
+
+
+\section{Blind Ring Signature Schemes} \label{brs}
+A blind ring signature consists of four algorithms called  \textsf{Setup}, \textsf{KeyGen}, \textsf{Sign} and \textsf{Verify}.
+\begin{itemize}
+	\item \textsf{Setup}$(1^{\lambda})$ is a probabilistic polynomial-time algorithm which takes as input the security parameter $\lambda$ and outputs a set of public parameters $\mathcal{P}$.
+	\item \textsf{KeyGen}$(\mathcal{P})$ is a probabilistic polynomial-time algorithm which takes as input the set of public parameters $\mathcal{P}$ to output a pair of public key (verification key) and secret key (signing key) $(\mathsf{pk},\mathsf{sk})$ corresponding to a signer of the ring $R=\{\mathcal{S}_1, \cdots, \mathcal{S}_l\}$. We denote the set of public keys of the ring $R$ by $PK$.
+	%If a ring of $l$ members $R=\{\mathcal{S}_1, \cdots, \mathcal{S}_l \}$, \textsf{BRS.KeyGen}$(\mathcal{P})$ is called $l$ times to get $l$ key pairs $\{(\mathsf{pk}_i,\mathsf{sk}_i)\}_{i \in [l]}$. 
+	
+	\item \textsf{Sign}$(\mathcal{P},\mathsf{sk}_j,\mu, PK)$ is an interactive polynomial-time protocol of two parties: one is a user and another is a ring of signers $R=\{\mathcal{S}_1, \cdots, \mathcal{S}_l\}$. The user, say  $\mathcal{U}(\mathcal{P}, PK, \mu)$, chooses a message $\mu$ that is blinded as $\mu^*$ before sending $\mu^*$ to the ring $R$ to be signed. The ring $R$, in turn, will choose a member, say $\mathcal{S}_j$, who possess the secret key  $\mathsf{sk}_j$, written $\mathcal{S}_j(\mathcal{P}, \mathsf{sk}_j)$, as the real signer interacting with the user. Finally, the signer obtains the \textit{blinded signature} $\Sigma^*$ on $\mu^*$ and outputs his \textit{view}, denoted $\mathcal{V}$, (it may that $\mathcal{V} \neq \Sigma^*$), while the user will output the \textit{real} (or \textit{final}) \textit{signature} $\Sigma$ on the original message $\mu$ by un-blinding $\Sigma^*$. The user may get an invalid signature denoted by a failure symbol $\bot$.
+	
+	\item \textsf{Verify}$(\mathcal{P}, \mu, \Sigma, PK)$ is a deterministic polynomial-time algorithm which takes as input the set of common parameters $\mathcal{P}$, the set of public keys $PK$, the message $\mu$ and the signature $\Sigma$ on $\mu$, then outputs 1 if the signature is valid and 0 otherwise. 
+\end{itemize}
+
+A blind ring signature scheme must have the following properties:   \textit{Correctness},  \textit{Anonymity}, \textit{Blindness} and  \textit{One-more Unforgeability}. We will make these properties clearer below.\\
+
+
+
+
+\noindent \textbf{Correctness}. \textit{Correctness} requires that the verifier always outputs $1$ if it receives a valid signature. Formally, it must hold that
+$$\Pr[\textsf{Verify}(\mathcal{P}, \mu, \Sigma, PK)=1: \Sigma \leftarrow \textsf{Sign}(\mathcal{P},\mathsf{sk}_j,\mu, PK), \Sigma \neq \bot]=1.$$
+A relaxation for the correctness is that  if $\Sigma \leftarrow \textsf{Sign}(\mathcal{P},\mathsf{sk}_j,\mu, PK), \Sigma \neq \bot$ then $\textsf{Verify}(\mathcal{P}, \mu, \Sigma, PK)=1$  with overwhelming probability. (In our case the probability will be at least $ 1-2^{-100}$.) 
+
+\noindent \textbf{Anonymity.} \label{ano} The anonymity property ensures that a user is impossible to know which member of the ring was the true signer engaging in the blind ring signature protocol. The definition of the anonymity property is given in the game below. In this game, the attacker acts as a malicious user. %Here, we follow the definition of \cite{ABB+13} in which the authors consider the case that the adversary obtains all parameters including two secret keys $\mathsf{sk}_{j}, \mathsf{sk}_{i_1}$, exception that the random bit $b$ is chosen by the challenger (see \cite[Subsection 2.4]{ABB+13}).
+
+\begin{enumerate}
+	%    \item \textbf{Setup.} The adversary $\mathcal{C}$ chooses the security parameter $\lambda$ and the ring of signers $R=\{ \mathcal{S}_1, \cdots, \mathcal{S}_l\}$. Then $\mathcal{C}$ calls \textsf{BRS.Setup}$(1^{\lambda})$ to output the common parameter set $\mathcal{P}$ and calls \textsf{BRS.KeyGen}$(\mathcal{P}, R)$ to obtain the key pairs $(\mathsf{pk}_i, \mathsf{sk}_i)_{i\in [l]}$. Afterward, $\mathcal{C}$ sends to the adversary $\mathcal{A}$ the set of public keys $\{\mathsf{pk}_i\}_{i\in [l]}$.
+	
+	\item \textbf{Setup.} The adversary $\mathcal{A}$ outputs the set of common parameters $\mathcal{P}$, the ring of signers $R=\{ \mathcal{S}_1, \cdots, \mathcal{S}_l\}$, its public keys $PK$,  two distinct indexes $j$, $i_1 \in [l]$, two secret keys $\mathsf{sk}_{j}, \mathsf{sk}_{i_1}$ and a message $\mu$. They are sent to the challenger $\mathcal{C}$.
+	\item \textbf{Challenge.} The challenger $\mathcal{C}$ chooses a random bit $b \in \{0,1\}$, then runs \textsf{Sign} on the input $(\mathcal{P}, \mathsf{sk}_{i_b}, \mu, PK)$ to get a blinded signature $\Sigma^*_{i_b}$ on $\mu$. The blinded signature $\Sigma^*_{i_b}$ will be given to the adversary $\mathcal{A}$.
+	\item \textbf{Output.}  The adversary outputs a bit $b'$ as a guess of $b$. He wins the game if $b'=b$.
+\end{enumerate}
+
+We say that the blind ring signature achieves anonymity if any adversary $\mathcal{A}$ succeeds in guessing $b$ with probability negligibly close to $1/2$. In other words, the advantage of $\mathcal{A}$ in distinguishing $\Sigma_{j}$ and $\Sigma_{i_1}$ is negligible.\\
+
+%===========================
+\noindent \textbf{Blindness.} \label{blind}
+Blindness is a fundamental property of a blind ring signature saying that all members in the ring do not learn any information about the message received from the user that they are having to sign. 
+The property can be modelled as a game  between an adversary $\mathcal{A}$ and a challenger $\mathcal{C}$. In this game, the adversary $\mathcal{A}$ plays the role of a dishonest ring of signers $R$ who tries to differentiate two given messages to know which one is being signed. 
+
+\begin{enumerate}
+	\item  \textbf{Setup.} The adversary $\mathcal{A}$ chooses a security parameter $\lambda$ and chooses a universal set of signers to generate the ring $R^{*}=\{\mathcal{S}_1, \cdots, \mathcal{S}_L \}$. Then it calls \textsf{Setup}$(1^{\lambda})$ to get the set of public parameters $\mathcal{P}$ according to the security parameter $\lambda$ and  \textsf{KeyGen}$(\mathcal{P})$ to output the key pairs $(\mathsf{pk}_i, \mathsf{sk}_i)_{i\in [L]}$ for each signer $\mathcal{S}_i$, $i \in [L]$. The adversary $\mathcal{A}$ knows $\mathcal{P}$ and $(\mathsf{pk}_i, \mathsf{sk}_i)_{i\in [L]}$. 
+	\item \textbf{Challenge.} The adversary $\mathcal{A}$ chooses a subring $R \subset R^{*}$, and its corresponding  public keys $PK$, and two messages $\mu_0 \neq \mu_1$, then he sends them to the challenger $\mathcal{C}$. The challenger $\mathcal{C}$ will flip a coin $b \in \{0, 1\}$ and sets up a blind ring signature protocol taking $\mu_b$ and the ring $R$ as input. The adversary $\mathcal{A}$ chooses a signer $\mathcal{S}_j$ in the ring $R$ to sign  the hidden form of $\mu_b$ and acts as the signer in the protocol. Eventually, $\mathcal{A}$ gets the view $\mathcal{V}_b$ and also the ``unblinded" signature $\Sigma_b \neq \bot$. If $\Sigma_b =\bot$, the game is restarted.
+	\item \textbf{Guess.} The adversary $\mathcal{A}$ outputs one value $b' \in \{0,1\}$. The adversary wins the game if $b'=b$.
+	
+\end{enumerate}
+
+
+\begin{algorithm}[pt]
+	\caption{\textsf{BRS.Setup($1^{n}$)}}
+	\begin{algorithmic}[1]
+		
+		\REQUIRE Security parameter $n$.
+		\ENSURE The set of public parameters $\mathcal{P}$=($n$, $m$, $q$, $k$, $\kappa$, $\sigma$,  $H$, $\sigma_1$, $\sigma_2$, $\sigma_3$, $M_1$, $M_2$, $M_3$, $\mathbf{T}$, $\eta)$
+		%    \STATE $q \geq 3$, prime
+		%    \STATE $m$ such that $m \geq 5n\log q$, $K:=m^{1+\epsilon}$, for any $\epsilon>0$
+		%    \STATE $\sigma\geq K \cdot \omega(\sqrt{\log m})$
+		%    \STATE a positive integer $k$
+		\STATE Generate parameters as in Table \ref{tab3}
+		\STATE An one-way and collision-resistant hash function $H:\{0,1\}^{*} \rightarrow \{ \mathbf{c}\in \{-1,0,1\} ^{k}: \Vert \mathbf{c} \Vert_1 \leq \kappa \}$  
+		\STATE A commonly-used matrix $\mathbf{T} \leftarrow_{\$} {\mathbb{Z}_q}^{m \times k}$ 
+		\STATE Output all as the set $\mathcal{P}$
+		
+		%    \STATE $\sigma_1, \sigma_2, \sigma_3, M_1, M_2, M_3$
+		
+	\end{algorithmic}
+	\label{setup}
+\end{algorithm}
+
+
+
+
+\begin{algorithm}[pt]
+	\caption{\textsf{BRS.KeyGen ($\mathcal{P}$)}}
+	\begin{algorithmic}[1]
+		
+		\REQUIRE $\mathcal{P}$=($n$, $m$, $q$, $k$, $\kappa$, $\sigma$,  $H$, $\sigma_1$, $\sigma_2$, $\sigma_3$, $M_1$, $M_2$, $M_3$, $\mathbf{T}$, $\eta)$
+		\ENSURE A key pair $(\mathbf{A},\mathbf{S})$
+		\STATE Run \textsf{TrapGen}$(1^n)$ to get $\mathbf{A}\in \mathbb{Z}_q^{n \times m}$ and $\mathbf{B}_{A}\in \mathbb{Z}_q^{n\times m}$ is a trapdoor of $\mathbf{A}$; /* \textit{the distribution of $\mathbf{A}$ is statistically close to the  uniform over $\mathbb{Z}_q^{n\times m} $} */
+		
+		\STATE $\mathbf{S}  \leftarrow$ \textsf{SampleKey}$(\mathbf{A}, \mathbf{B}_{A}, \sigma,\mathbf{T})$, i.e., $\mathbf{A}\mathbf{S}=\mathbf{T} \text{ (mod } q)$ where $\mathbf{S} \in D_d:=\{-d, \cdots, 0, \cdots, d\}^{m \times k}$, $d=\sigma\sqrt{m} $; /* \textit{the distribution of $\mathbf{S}$ is $\mathcal{D}_{\mathbb{Z}, \sigma}^{m \times k}$ statistically close to the uniform over $D_d $} */
+		
+		\RETURN Public key $\mathbf{A}$ and secret key $\mathbf{S}$
+	\end{algorithmic}
+	\label{keygen}
+\end{algorithm}
+
+
+We say that a ring signature scheme is \textit{blind} if for any adversary $\mathcal{A}$ the success probability in the game is only negligibly larger than $1/2$. \\
+% In particular, a scheme is called \textit{perfectly blind} if the success probability of any adversary $\mathcal{A}$ in the game is exactly $1/2$. \\
+
+%The standard way in proving the blindness of a blind ring signature scheme is by showing that the view $\mathcal{V}$ is independent of the message, that is, the adversary is not able to learn anything about the original message from the view $\mathcal{V}$ it saw.
+\noindent \textbf{One-more Unforgeability.}
+The one-more unforgeability property guarantees that from at most $q_S$ real interactions of the blind ring signature protocol, the user has no capacity of producing $q_S+1$ valid and different ring signatures. The property is defined by the game below. In this game, the forger will act the behaviour of a malicious user.
+\begin{enumerate}
+	\item \textbf{Setup.} The forger $\mathcal{F}$ chooses a security parameter $\lambda$ and chooses a universal set of signers to generate the ring $R^{*}=\{\mathcal{S}_1, \cdots, \mathcal{S}_L \}$. The challenger $\mathcal{C}$ calls \textsf{Setup}$(1^{\lambda})$ to get the set of public parameters $\mathcal{P}$ and  \textsf{KeyGen}$(\mathcal{P})$ to output the key pairs $(\mathsf{pk}_i, \mathsf{sk}_i)_{i\in [L]}$ for each signer $\mathcal{S}_i$, $i \in [L]$. Then $\mathcal{C}$ sends to the forger $\mathcal{F}$ the set $\mathcal{P}$ and the set of public keys $\{\mathsf{pk}_i\}_{i\in [L]}$. The set $\{\mathsf{sk}_i\}_{i\in [L]}$ is kept secret.
+	\item \textbf{Queries.} The forger $\mathcal{F}$ adaptively makes queries to the challenger:
+	\begin{itemize}
+		\item $q_H$ hash queries to the random oracle which models the hash function $H$ in the real protocol. For each hash query from the adversary, the challenger has to reply with a consistently random value. 
+		\item $q_S$ blind signing queries,  each is of the form $(\mu_i, R_i)$ where $R_i\subset R^{*}$. For each signing query, the challenger must answer with a valid blind ring signature. 
+	\end{itemize}
+	
+	\item \textbf{Output.} The forger $\mathcal{F}$ outputs $q_S+1$ tuples $\{ (\mu_i, R_i, \Sigma_i) \}_{i \in [q_S+1]}, R_i \subset R^*$. He wins the game if  $\{\Sigma_i\}_{i \in [q_S+1]}$ are all valid and $(\mu_i, R_i) \neq (\mu_j, R_j) $ for all $i, j \in [q_S+1]$ and $i \neq j$.
+	
+\end{enumerate}
+We say that a blind ring signature scheme  is
+\textit{one-more unforgeable} if in the game, $\Pr[\mathcal{F} \text{ wins}]$ is negligible. 
+%A signature scheme is $(t, q_S, q_H,\delta)$-OMU if there is no adversary running in time at most $t$, making at most $q_S$ signing queries and at most $q_H$ hash queries that wins the game with probability at least $\delta$.
+\begin{remark}
+	For simplicity, in the proof for the one-more unforgeability property of our proposed scheme, we assume that $R_i=R^*$ for all $i \in [q_S+1]$, that is, the forger does not want to change the ring of signers at all.
+\end{remark}
+
+%We can show a ring signature scheme to be unforgeability in random oracle model by reducing the unforgeability property to solving some underlying hard problem. The proof should briefly follow the following main steps:
+%\begin{itemize}
+%    \item We design hybrid algorithms to replace the actual ring signing algorithm (i.e., \textsf{Ring-Sign}), then show that the advantage that the forger $\mathcal{F}$ distinguishes \textsf{Ring-Sign} from hybrids is negligible.
+%    \item We argue that a polynomial-time forger $\mathcal{F}$ who can produce a valid ring signature with probability $\delta$ then can be turned into a polynomial-time algorithm solving some hard underlying problem with some probability with respect to $\delta$.
+
+
+%\end{itemize}
+
+
+
+\section{Our Blind Ring Signature Scheme}
+\label{brssc}
+We will present our blind ring signature (named \textsf{BRS}) scheme. The security of \textsf{BRS} bases on the average-case assumption of the \textsf{SIS} problem. The scheme follows the 4-move framework for blind ring signature as reviewed in Section \ref{brs}. It consists of four algorithms (see Algorithms \ref{setup}-\ref{verify} and Figure \ref{fig1}) described as follows:
+
+\begin{itemize}
+	\item We suppose that $n$ is the security parameter. $\textsf{BRS.Setup}(1^n)$ is called to output a common set of parameters $\mathcal{P}$ (see Algorithm \ref{setup}). We will mention the role of these parameters and how to set them in Subsection \ref{paraset}. 
+	
+	\item Given a matrix $\mathbf{T} \leftarrow_{\$} {\mathbb{Z}_q}^{n \times k}$ , to generate public key $\mathbf{A}_i \leftarrow_{\$} {\mathbb{Z}_q}^{n \times m}$ and secret key $\mathbf{S}_i \in{\mathbb{Z}_q}^{m \times k}$ for each signer $\mathcal{S}_i$ in a ring $R=\{\mathcal{S}_1,\cdots, \mathcal{S}_l\}$ of $l$ members such that $\mathbf{T}=\mathbf{A}_i\mathbf{S}_i$, we run $l$ times  \textsf{BRS.KeyGen} (see Algorithm \ref{keygen})  which exploits the preimage sample functions (trapdoor functions) mentioned in Subsection \ref{pre}. The secret key $\mathbf{S}_i$ follows a discrete Gaussian distribution $\mathcal{D}_{\sigma}^{m\times k}$ and its security is guaranteed by the hardness assumption of the \textsf{ISIS} problem. 
+	
+	
+	\begin{figure}[pt]
+		\centering
+		\medskip
+		\smallskip
+		\raisebox{\dimexpr 0.6\baselineskip-\height}% align tops
+		
+		
+		
+		\small\addtolength{\tabcolsep}{-1.8pt}
+		
+		\begin{tabular}{|  l c l | }
+			\hline
+			\hline
+			\textbf{The member $\mathcal{S}_j(\mathcal{P}, \mathbf{S}_j)$  is the signer} && \textbf{The user $\mathcal{U}(\mathcal{P}, PK, \mu)$}\\
+			\hline
+			\hline
+			\textbf{\underline{Phase 1:}}&& \\
+			\textbf{for} { $i\in[l]$}:  $\mathbf{s}_i \leftarrow_{\$} \mathcal{D}_{\sigma_2}^{m}$
+			&& \\
+			
+			$\mathbf{x}=\sum_{i \in [l]}\mathbf{A}_i\mathbf{s}_i \text{ (mod } q)$&&	\\
+			\hline
+			\hspace{6.5cm} $\mathbf{x}$ &$\longrightarrow$& \textbf{\underline{Phase 2:}} \\
+			
+			&&\textbf{for} { $i\in[l]$}: $\mathbf{a}_i \leftarrow \mathcal{D}_{\sigma_3}^m$ \\
+			&&$\mathbf{b} \leftarrow \mathcal{D}_{\sigma_1}^k$, $\mathbf{t} \leftarrow_{\$} \{0,1\}^n$,\\
+			&&	$\mathbf{w}=\sum_{i \in [l]}\mathbf{A}_i\mathbf{a}_i$, $C:=\textsf{com}(\mu,\mathbf{t})$\\
+			&& $\mathbf{u}=\mathbf{x}+\mathbf{w}+\mathbf{T}\mathbf{b} \text{ (mod } q)$\\
+			&& $\mathbf{c}=H(\mathbf{u}, C, PK), \mathbf{e}=\mathbf{c}+\mathbf{b}$\\
+			&&Outputs $\mathbf{e}$ with probability \\
+			&& \hspace{1.5cm} $\min \left\{ \frac{\mathcal{D}_{\sigma_1}^k(\mathbf{e})}{M_1 \cdot \mathcal{D}^k_{\mathbf{c},\sigma_1}(\mathbf{e})},1 \right\}$\\
+			\hline
+			\textbf{\underline{Phase 3:}}&$\longleftarrow$&$\mathbf{e}$\\
+			
+			
+			\textbf{for} $i\in[l]\setminus \{j\}$: $\mathbf{y}_i=\mathbf{s}_i$&&\\
+			\textbf{for} $j$: $\mathbf{y}_j=\mathbf{s}_j+\mathbf{S}_j \mathbf{e}$&&\\
+			
+			\hspace{0.5cm} Output $\mathbf{y}_j$ with probability&&  \\
+			\hspace{1.5cm} min$ \left\{ \frac{\mathcal{D}_{\sigma_2}^m(\mathbf{y}_j)}{M_2 \cdot \mathcal{D}^m_{\mathbf{S}_j\mathbf{e},\sigma_2}(\mathbf{y}_j)},1 \right\}$&&  \\
+			
+			
+			
+			\hline
+			\hspace{5cm} $\Sigma^*=\{\mathbf{y}_i\}_{i \in [l]} $&$\longrightarrow$&\textbf{\underline{Phase 4:}}\\
+			&&	\textbf{for} { $i\in[l]$}: $\mathbf{z}_i=\mathbf{y}_i+\mathbf{a}_i$\\
+			&&\hspace{0.5cm}  accepts $\mathbf{z}_i$ with probability \\
+			&&\hspace{1.5cm} min$ \left\{ \frac{\mathcal{D}_{\sigma_3}^m(\mathbf{z}_i)}{M_3 \cdot \mathcal{D}^m_{\mathbf{y}_i, \sigma_3}(\mathbf{z}_i)},1 \right\}$\\
+			&&That is, \\
+			&&\hspace{0.5cm} \textbf{if} ($\exists j$ s.t. $\Vert \mathbf{z}_{j} \Vert >  \eta \sigma_3 \sqrt{m}):$ \\
+			&&\hspace{1cm} \textsf{result} $:= ((\mathbf{a}_i)_{i\in[l]}, \mathbf{b}, \mathbf{c}, C)$\\
+			&&\hspace{0.5cm} \textbf{else}: \textsf{result} $:= $ \textsf{accept}\\		
+			&&\textbf{Output:} ($\mu$, $ \Sigma=((\mathbf{z}_i)_{i \in [l]}, \mathbf{c}, \mathbf{t}))$\\
+			&&\hspace{0.5cm}  or $\bot$ when \textsf{result }$\neq$ \textsf{accept}\\
+			
+			\hline 
+			\textbf{\underline{Phase 5:}}&$\longleftarrow$&\textsf{        result      }\\
+			
+			
+			\textbf{if} (\textsf{result} $\neq$ \textsf{accept}): &&\\
+			
+			\hspace{0.5cm} 	Parse \textsf{result}$=((\mathbf{a}_i)_{i\in[l]}, \mathbf{b}, \mathbf{c}, C)$ &&\\
+			
+			\hspace{0.5cm}  $\mathbf{w}=\sum_{i \in [l]}\mathbf{A}_i\mathbf{a}_i$, $\mathbf{v}=\sum_{i \in [l]}\mathbf{A}_i\mathbf{y}_i$&&\\
+			\hspace{0.5cm} $\mathbf{u}=\mathbf{x}+\mathbf{w}+\mathbf{T}\mathbf{b} \text{ (mod } q)$&&\\
+			\hspace{0.5cm} $\mathbf{u}'=\mathbf{w}+\mathbf{v}-\mathbf{T}\mathbf{c} \text{ (mod } q)$&&\\
+			\hspace{0.5cm} \textbf{if} ( $\mathbf{e}-\mathbf{b}=\mathbf{c}=H(\mathbf{u}, C, PK)$ &&\\
+			\hspace{1cm}  and $\mathbf{c}=H(\mathbf{u}', C, PK)$ &&\\
+			\hspace{1cm}  and $\exists j$ s.t. $\Vert \mathbf{y}_{j}+\mathbf{a}_{j} \Vert >  \eta \sigma_3 \sqrt{m}):$ &&\\
+			
+			\hspace{1.5cm} Restart the protocol&&\\
+			%	\hline
+			%	\textbf{\underline{Phase 6:}}&& \\
+			\textbf{Output:} the view $\mathcal{V}=(\mathbf{x},\mathbf{e}, (\mathbf{s}_i, \mathbf{y}_i)_{i \in [l]})$&& \\
+			\hline
+		\end{tabular}
+		
+		\medskip
+		\caption{The signing protocol \textsf{BRS.Sign}( $\mathcal{P}, \mathbf{S}_j,\mu, PK $), $j \in [l]$, $PK=\{\mathbf{A}_i\}_{i\in[l]}$} 
+		\label{fig1}
+	\end{figure}
+	
+	
+	
+	\item The signing algorithm (\textsf{BRS.Sign})(see Figure \ref{fig1}) is an interactive protocol between a user $\mathcal{U}$ and a ring $R=\{\mathcal{S}_1,\cdots, \mathcal{S}_l\}$. The user $\mathcal{U}$ knows the set of public keys $PK$ and he wants the ring $R$ to sign  the message $\mu$. Here we describe the protocol in the case that the ring secretly delegates some signer $\mathcal{S}_j \in R$ to interact with the user. We relatively split the  signing interaction into five main phases:
+	
+	\begin{itemize}
+		\item \underline{Phase 1:} The signer samples randomly a list $\{\mathbf{s}_i \}_{i \in [l]}$ according to the distribution $\mathcal{D}_{\sigma_2}^m$ to compute and then sends the \textit{commitment } $\mathbf{x}=\sum_{i \in [l]}\mathbf{A}_i\mathbf{s}_i$ to the user.
+		\item \underline{Phase 2:} The user chooses blind factors $\mathbf{a}_i \leftarrow \mathcal{D}_{\sigma_3}^m$ for all $i \in [l]$ and $\mathbf{b} \leftarrow \mathcal{D}_{\sigma_1}^k$. He also chooses a random binary vector $\mathbf{t}\leftarrow_{\$} \{0,1\}^n$ then uses the commitment function \textsf{com} to compute the commitment string $C:=\mathsf{com}(\mu, \mathbf{t}) \in \{0,1\}^n$. Afterward, he computes $\mathbf{u}=\mathbf{x}+\sum_{i \in [l]}\mathbf{A}_i\mathbf{a}_i +\mathbf{T}\mathbf{b}$ then hash it with $C$ using the hash function $H$ where $H:\{0,1\}^{*} \rightarrow D_c:=\{ \mathbf{c}\in \{-1,0,1\} ^{k}: \Vert \mathbf{c} \Vert \leq \kappa \}$ to get the \textit{challenge} $\mathbf{c}$. To blind the message, the user uses the rejection sampling technique to get the \textit{blinded challenge} $\mathbf{e}$. Finally, the user sends $\mathbf{e}$ to the ring.
+		\item \underline{Phase 3:} This is the signing phase in which the signer $ \mathcal{S}_j$ considers $\mathbf{s}_i$'s sampled in Phase 1 as the partial signatures of other members in the ring on the message $\mu$, while he uses his secret key $\mathbf{S}_j$ to compute his himself partial signature $\mathbf{y}_j=\mathbf{s}_j+\mathbf{S}_j \mathbf{e}$  on $\mu$. In order to make sure that no information of his secret key $\mathbf{S}_j$ is leaked, the signer also exploits the rejection sampling such that $\mathbf{y}_j$ follows the same distribution $\mathcal{D}_{\sigma_2}^m$ as $\mathbf{s}_j$. Finally, he sends the \textit{blinded signature}  $\{\mathbf{y}_i\}_{i \in [l]}$ to the user. 
+		\item \underline{Phase 4:}  In this phase, the user computes $\mathbf{z}_i=\mathbf{y}_i+\mathbf{a}_i$ for all $i \in [l]$. The rejection sampling is used here to ensure that $\mathbf{z}_i$ is independent of $\mathbf{y}_i$ for blindness.
+		 %We denote by $J$ the \textit{rejection area}, i.e., the area between the graphs of $\mathcal{D}_{\sigma_3}^m$ and $M_3 \cdot \mathcal{D}^m_{\mathbf{y}_i, \sigma_3}$. 
+		 If $\Vert \mathbf{z}_i \Vert \leq \eta \sqrt{m} \sigma_3$ for all $i \in [l]$ then the user outputs $(\mu, \Sigma=((\mathbf{z}_i)_{i \in [l]}, \mathbf{c}, \mathbf{t}))$ as the \textit{final signature}; otherwise, he returns ``$\bot$''. Note that, it is a must for the user to send $\textsf{result}$ to the signer as a confirmation of the validity of the final signature (if $\textsf{result}:=\textsf{accept}$ ) or as a requirement to restart the protocol (if $ \textsf{result}:=((\mathbf{a}_i)_{i\in[l]}, \mathbf{b}, \mathbf{c}, C)$).  
+		\item \underline{Phase 5:} In this phase, if the signer gets $\textsf{result}\neq \textsf{accept}$, he will check up some conditions before he restarts the protocol from the beginning. This helps to detect the case that an adversarial user tries to restart the signing protocol despite having obtained a valid signature. If the signer gets the validity confirmation from the user, he finally outputs the \textit{view}  $\mathcal{V}=(\mathbf{x},\mathbf{e}, (\mathbf{s}_i, \mathbf{y}_i)_{i \in [l]})$.
+	\end{itemize} 
+	\item  \textsf{BRS.Verify}($\mathcal{P},\mu, \Sigma, PK)=1$ iff $ \Vert \mathbf{z}_i\Vert \leq \eta\sqrt{m}\sigma_3$ for all $i \in [l]$ and 
+	$\mathbf{c}=H(\sum_{i \in [l]}\mathbf{A}_i\mathbf{z}_i -\mathbf{T}\mathbf{c}\text{ (mod } q), \mathsf{com}(\mu, \mathbf{t}),PK)$; and \textsf{BRS.Verify}($\mathcal{P},\mu, \Sigma, PK)=0$ otherwise. (See Algorithm \ref{verify}.)
+\end{itemize}
+
+
+
+
+\begin{algorithm}
+	\caption{\textsf{BRS.Verify}($\mathcal{P},\mu, \Sigma, PK$)}
+	
+	\begin{algorithmic}[1]
+		\REQUIRE $\mathcal{P}$, $\mu, \Sigma=( (\mathbf{z}_i)_{i \in [l]}, \mathbf{c}, \mathbf{t})$, $PK=\{\mathbf{A}_i\}_{i \in [l]}$
+		\ENSURE  1 or 0
+		
+		
+		\STATE $\mathbf{u}=\sum_{i \in [l]}\mathbf{A}_i\mathbf{z}_i -\mathbf{T}\mathbf{c}\text{ (mod } q)$
+		\STATE $\mathbf{c}'=H(\mathbf{u}, \mathsf{com}(\mu, \mathbf{t}),PK)$
+		\IF {$\mathbf{c}'=\mathbf{c}$ and $ \Vert \mathbf{z}_i\Vert \leq \eta\sqrt{m}\sigma_3$ for all $i \in [l]$}
+		\RETURN 1
+		\ELSE
+		\RETURN 0
+		\ENDIF
+		
+	\end{algorithmic}
+	\label{verify}
+\end{algorithm}
+\normalsize
+
+
+
+%====================================
+\section{Correctness and Security Analysis of \textsf{BRS}}  \label{sec5}
+\subsection{Correctness}  \label{correct}
+
+\begin{theorem}[\textbf{Correctness}] \label{theo3} Our BRS scheme is correct after at most $e^2$ repetitions with probability at least $1-2^{-100}$.
+\end{theorem}
+
+\begin{proof}[of Theorem \ref{theo3}] Given the pair $(\mu,\Sigma=( (\mathbf{z}_i)_{i \in [l]}, \mathbf{c}, \mathbf{t}))$ is the output of the user in \textsf{BRS.Sign}($\mathcal{P}, \mathbf{S}_j,\mu, PK $) as in Figure \ref{fig1}, the set of public keys $PK=\{\mathbf{A}_i\}_{i \in [l]}$, and parameters $\mathcal{P}$, we will prove that $H(\sum_{i \in [l]}\mathbf{A}_i\mathbf{z}_i -\mathbf{T}\mathbf{c}\text{ (mod } q),$ $\mathsf{com}(\mu, \mathbf{t}), PK)=\mathbf{c}.$
+	
+	Without caring the restarts appear in rejection samplings, we have 
+	\begin{align*}\sum_{i \in [l]}\mathbf{A}_i\mathbf{z}_i -\mathbf{T}\mathbf{c}\text{ (mod } q)&=\sum_{i \in [l]}\mathbf{A}_i(\mathbf{y}_i+\mathbf{a}_i) -\mathbf{T}(\mathbf{e}-\mathbf{b})\text{ (mod } q)\\
+	&=\sum_{i \in [l]\setminus\{j\}}\mathbf{A}_i\mathbf{s}_i+\mathbf{A}_j(\mathbf{s}_j+\mathbf{S}_j\mathbf{e})\\&\hspace{1cm}+\sum_{i \in [l]}\mathbf{A}_i\mathbf{a}_i -\mathbf{T}(\mathbf{e}-\mathbf{b})\text{ (mod } q)\\
+	&=\sum_{i \in [l]}\mathbf{A}_i\mathbf{s}_i+\sum_{i \in [l]}\mathbf{A}_i\mathbf{a}_i+\mathbf{T}\mathbf{b} \text{ (mod } q)\\
+	&=\mathbf{x}+\mathbf{w}+\mathbf{T}\mathbf{b} \text{ (mod } q).
+	\end{align*}
+	
+Hence $H(\sum_{i \in [l]}\mathbf{A}_i\mathbf{z}_i -\mathbf{T}\mathbf{c}\text{ (mod } q), \mathsf{com}(\mu, \mathbf{t}), PK)=\mathbf{c}$.  Note that, with overwhelming probability, $\Vert \mathbf{z}_i\vert \leq \eta\sqrt{m}\sigma_3$ for all $i\in [l]$ by Lemma \ref{lem2}. 
+	
+	Now we analyze the rejection sampling technique to bound the number of restarts of our \textsf{BRS} protocol. Recall that, by Remark \ref{rem2}, we have \begin{align*}
+	\frac{\mathcal{D}_{\sigma}^m(\mathbf{x})}{M \cdot \mathcal{D}^m_{\mathbf{v},\sigma}(\mathbf{x})} \leq \frac{e^{1+1/288}}{M},
+	\end{align*}
+	with probability at least $1-2^{-100}$ if $\sigma=12\Vert  \mathbf{v}\Vert$.
+	Being used in the rejection sampling, we need $\mathcal{D}_{\sigma}^m(\mathbf{x})/(M \cdot \mathcal{D}^m_{\mathbf{v},\sigma}(\mathbf{x}))\leq 1$. Since $M$ should be as small as possible, it is sufficient to choose $M=\exp\left((24\Vert  \mathbf{v}\Vert\sigma+\Vert  \mathbf{v}\Vert^2)/(2\sigma^2)\right) \approx e^{1+1/288},$ with $\sigma=12\Vert  \mathbf{v}\Vert$.
+	Now we apply above analyses to the rejection samplings in our \textsf{BRS} scheme. Remark that in Phase 2 of our scheme, as the user utilizes the rejection sampling locally to output $\mathbf{e}$, the restarts of this phase does not impact to the correctness of the scheme. We just care about the restarts happening in Phase 3 and Phase 5. Hence, after at most $M_2\cdot M_3 \approx e^2$ restarts, the \textsf{BRS} scheme can successfully output a valid blind ring signature. \qed
+\end{proof}
+
+\begin{remark}\label{rem5}
+	In the proof of Theorem \ref{theo3}, we use $\mathbf{e}=\mathbf{c}+\mathbf{b}$ obtained in Phase 2 of \textsf{BRS.Sign}. Assume that  $\mathbf{e}=\mathbf{c}'+\mathbf{b}'$ for some $\mathbf{b}\neq \mathbf{b}'$, $\mathbf{c}\neq \mathbf{c}'$, then also
+		\begin{align*}\sum_{i \in [l]}\mathbf{A}_i\mathbf{z}_i -\mathbf{T}\mathbf{c}'\text{ (mod } q)&=\sum_{i \in [l]}\mathbf{A}_i(\mathbf{y}_i+\mathbf{a}_i) -\mathbf{T}(\mathbf{e}-\mathbf{b}')\text{ (mod } q)\\
+	&=\mathbf{x}+\mathbf{w}+\mathbf{T}\mathbf{b}' \text{ (mod } q).
+	\end{align*}
+	Thus, if  $\mathbf{e}-\mathbf{b}'=\mathbf{c}'=H(\mathbf{x}+\mathbf{w}+\mathbf{T}\mathbf{b}' \text{ (mod } q), \mathsf{com}(\mu, \mathbf{t}), PK)$, then $H(\sum_{i \in [l]}\mathbf{A}_i\mathbf{z}_i $ $-\mathbf{T}\mathbf{c}'\text{ (mod } q),$ $ \mathsf{com}(\mu, \mathbf{t}), PK)=\mathbf{c}'$. This remark will be used in the proof of Theorem \ref{theo1}.
+\end{remark}
+
+
+\subsection{Anonymity} 
+
+
+Recall that, in the anonymity game (see Subsection \ref{ano}), the adversary $\mathcal{A}$ receives a set of public keys $PK=\{\mathsf{pk}_i\}_{i\in [l]}$ and he adaptively make queries to the blind ring signature with a message $\mu$ and the indexes $j$, $i_1 \in [l]$ to get a signature $\Sigma$ which depends on the random bit $b \in \{0,1\}$ chosen by the challenger. The adversary wins the game if he guesses exactly the bit $b$. 
+The following theorem says that the advantage of the attacker in guessing $b$ is actually negligible.
+
+
+\begin{theorem}[\textbf{Anonymity}] \label{theo2}
+	Given the ring of signers $R=\{\mathcal{S}_1, \cdots, \mathcal{S}_l\}$, and the set of key pairs $\{(\mathbf{A}_i, \mathbf{S}_i)\}_{i\in [l]}$, a message $\mu$, two distinct indexes $j$, $i_1 \in [l]$ and a random bit $b \in \{0,1\}$. Consider the anonymity game as in Subsection \ref{ano}. Let $X_0$ and $X_1$ two random variables representing the blinded signatures obtained by the blind ring signature protocol $\mathsf{BRS.Sign}$ with respect to $b=0$ and $b=1$, respectively. Then there exist a universal constant $M_2>0$ such that
+	$$\Delta(X_0,X_1)\leq \frac{2^{1-\omega(\log m)}}{M_2}.$$
+\end{theorem}
+\begin{proof}[of Theorem \ref{theo2}]
+	In the game, the challenger chooses randomly $b \in \{0,1\}$ and runs \textsf{BRS.Sign} using the signer $\mathcal{S}_{i_b}$ corresponding to the private key $\mathbf{S}_{i_b}$, then we will get the blinded signature $(\mathbf{y}_1, \cdots, \mathbf{y}_{i_b} \cdots, \mathbf{y}_l )$, where $\mathbf{y}_{i_b}:=\mathbf{S}_{i_b}\mathbf{e}+\mathbf{s}_{i_b}$ outputted with probability min$\{ {\mathcal{D}_{\sigma_2}^m(\mathbf{y}_{i_b})}/({M_2 \cdot \mathcal{D}^m_{\mathbf{S}_{i_b}\mathbf{e},\sigma_2}(\mathbf{y}_{i_b})}),1\}$ and $\mathbf{y}_i:=\mathbf{s}_i \leftarrow \mathcal{D}_{\sigma_2}^m$ for all $i \in [l] \setminus\{i_b\}$.
+	
+	Assume that the adversary gets the signature $(\mathbf{y}_1, \cdots, \mathbf{y}_{i_b} \cdots, \mathbf{y}_l )$ by choosing each element $\mathbf{y}_i$ from $\mathcal{D}_{\sigma_2}^m$ with probability $1/M_2$. We denote by $Y$ the random variable according to the signature obtained by this way.  Then using Lemma \ref{lem3} we have
+	$$ \Delta(X_0,Y) \leq \frac{2^{-\omega(\log m)}}{M_2}  \text{ and }  \Delta(X_1,Y) \leq \frac{2^{-\omega(\log m)}}{M_2}. $$
+	Hence $\Delta(X_0,X_1)\leq  \Delta(X_0,Y)+  \Delta(X_1,Y) \leq \frac{2^{1-\omega(\log m)}}{M_2} $ still negligible. \qed
+\end{proof}
+
+%===========================
+\subsection{Blindness}
+
+\begin{theorem}[Blindness] \label{blindness} 
+	Our \textsf{BRS} scheme is blind provided that \textsf{com} is hiding and the hash function $H$ is one-way and collision-resistant.
+\end{theorem}
+
+\begin{proof}[of Theorem \ref{blindness}] It is easy to see that the blindness of our \textsf{BRS} scheme is guaranteed by the rejection sampling technique and the hiding property of the commitment \textsf{com}.  
+	
+	As per the game of blindness in Subsection \ref{blind}, when the dishonest signer gives two messages $\mu_0$ and $\mu_1$ to the challenger, the challenger will chooses randomly a bit $b \in \{0,1\}$. Then the signer and the challenger initiates the blind ring signature protocol having interaction with only one of two users $\mathcal{U}(\mathcal{P}, PK, \mu_0)$ and $\mathcal{U}(\mathcal{P}, PK, \mu_{1})$. We show that the signer actually does not know which user he is interacting with, that is, the view $\mathcal{V}=(\mathbf{x},\mathbf{e}, (\mathbf{s}_i, \mathbf{y}_i)_{i \in [l]})$ that the signer has is independent of the message being signed. More precisely, $\mathbf{e}$ and $(\mathbf{y}_i)_{i \in [l]})$ is independent of the message being signed. 	Indeed, let $\mathcal{V}_0=(\mathbf{x}_0,\mathbf{e}_0, (\mathbf{s}_{0,i}, \mathbf{y}_{0,i})_{i \in [l]})$ and $\mathcal{V}_1=(\mathbf{x}_1,\mathbf{e}_1, (\mathbf{s}_{1,i}, \mathbf{y}_{1,i})_{i \in [l]})$ be views respectively corresponding to users $\mathcal{U}(\mathcal{P}, PK, \mu_0)$ and $\mathcal{U}(\mathcal{P}, PK, \mu_{1})$.
+	Then, the rejection sampling in Phase 2 ensures that both $\mathbf{e}_0$ and $\mathbf{e}_1$ are distributed according to the same distribution $\mathcal{D}_{\sigma_1}^k$. Similarly, by the rejection sampling in Phase 3, both $\mathbf{y}_{0,i}$ and $\mathbf{y}_{1,j}$ for all $i, j \in [l]$ follow the same distribution $\mathcal{D}_{\sigma_2}^m$. The distributions of $\mathbf{e}$ and $\mathbf{y}_{0,i}$ are independent of choosing the message to be signed.
+	
+	Regarding  two unblinded signatures  $ \Sigma_0=((\mathbf{z}_{b,i})_{i \in [l]}, \mathbf{c}_b, \mathbf{t}_b)$ corresponding to the users $\mathcal{U}(\mathcal{P}, PK, \mu_b)$, $b=0,1$. Again, by the rejection sampling used in Phase 4, the malicious signer is impossible to distinguish $(\mathbf{z}_{0,i})_{i \in [l]}$ from $(\mathbf{z}_{1,i})_{i \in [l]}$. Certainly, the signer does not learn anything about the original message $\mu$ being signed from the challenges $\mathbf{c}_0$, $\mathbf{c}_1$ due to the property of the hash function $H$. Also, the distribution of $\mathbf{t}_b$ is independent of $\mu$.
+	
+	Finally, we concern the restart might happen in Phase 5. Again, by the hiding property of the commitment \textsf{com} and since the user samples fresh values $\mathbf{t}$, $\mathbf{a}$ and $\mathbf{b}$ after every such a restart, we have that each rerun of the protocol is independent of the previous runs. (See similar arguments to a blind signature scheme in \cite{Ruc10}.) \qed
+	
+	
+\end{proof}
+
+
+%===========================================================%
+\subsection{One-more Unforgeability}
+Before stating the main theorem of this subsection, we adopt the following lemma:
+\begin{lemma}[Lemma 5.2 in \cite{Lyu12}] \label{lem4}
+	Given a matrix $\mathbf{A} \in \mathbb{Z}_q^{n \times m}$ where $m>64+n\log q/\log(2d+1)$, randomly chosen $\mathbf{s} \leftarrow_{\$} \{-d, \cdots, 0, \cdots, d\}^m$. Then with probability at least $1-2^{-100}$, there exists another $\mathbf{s}' \leftarrow_{\$} \{-d, \cdots, 0, \cdots, d\}^m$ such that $\mathbf{A}\mathbf{s}=\mathbf{A}\mathbf{s}' \text{(mod } q).$
+\end{lemma}
+
+For notational convenience, we call the \textit{($q_H$, $q_S$, $\delta$)-forger $\mathcal{F}$} a polynomial-time algorithm $\mathcal{F}$ that successfully breaks the one-more unforgeablity of our \textsf{BRS} protocol with non negligible probability $\delta$, making at most $q_H$ hash queries and at most $q_S$ sign queries to the scheme. The following theorem says that if there exists such a forger then one can construct an algorithm being able to solve an \textsf{SIS} problem.
+\begin{theorem}[One-more Unforgeability] \label{theo1} Consider the $\mathsf{BRS}$ scheme described in Section \ref{brssc}.
+	Suppose that the commitment function  \textsf{com} used in the \textsf{BRS} scheme is binding. If there is a ($q_H$, $q_S$, $\delta$)-forger $\mathcal{F}$ who breaks the one-more unforgeablity of our $\mathsf{BRS}$ protocol then there is a polynomial-time algorithm $\mathcal{G}$ which can solve an $\mathsf{SIS}_{q,n,ml, \beta}$ problem with $\beta=\max\{(2l\eta\sigma_3+2\sigma\sqrt{\kappa})\sqrt{m}, (2l\eta\sigma_3+l\eta\sigma_2)\sqrt{m}\}$ with probability at least \begin{align*}
+	\delta_{overall} \geq	\min \left\{ \frac{1}{4s}(1-\zeta)\left(1-\frac{1}{|D_c|}\right)\left(\frac{\delta-\frac{1}{|D_c|}}{q_H}-\frac{1}{|D_c|}\right), \delta\left(1-\frac{1}{|D_c|}\right) \right\},
+	\end{align*} where $\zeta$ is the probability of a restart in the scheme, $s:=q_S+1$. 
+\end{theorem}
+
+
+
+\begin{proof}[of Theorem \ref{theo1}]
+	
+%	Assume that there exists a ($q_H$, $q_S$, $\delta$)-forger $\mathcal{F}$ breaking successfully the one-more unforgeability of our scheme with probability at $\delta$. That is, only performing at most $q_S$ successful signing queries, the forger $\mathcal{F}$ can produce $s:=q_S+1$ valid signatures.  
+	In the following, we will describe an algorithm $\mathcal{G}$ using $\mathcal{F}$ as a black-box routine to solve the following \textsf{SIS}$_{q,n,ml, \beta}$ problem:
+			\begin{equation}\label{key}
+		\text{ Find }  \Vert \widehat{\mathbf{z}} \Vert \leq \beta \text{ such that } \mathbf{A}\widehat{\mathbf{z}}=\mathbf{0} \text{ (mod } q), 
+			\end{equation}
+			 where  $\mathbf{A}:=[\mathbf{A}_1\|\cdots\|\mathbf{A}_l]$, and all $\mathbf{A}_i$'s are random matrices in $\mathbb{Z}_q^{n \times m}$.
+	\begin{enumerate}
+		\item \textbf{Setup.} First of all, $\mathcal{G}$ calls \textsf{BRS.Setup}$(1^{n})$ to get a set of public parameters $\mathcal{P}$, but without $\mathbf{T}$. This $\mathbf{T}$ will be produced by $\mathcal{G}$ later, as below.  $\mathcal{G}$ then forms a set of signers to generate the ring of signers $R=\{\mathcal{S}_1, \cdots, \mathcal{S}_l \}$ in  which each signer $\mathcal{S}_i$ is uniquely identified by the matrix $\mathbf{A}_i$. Next,  $\mathcal{G}$ chooses randomly an index $j \leftarrow_{\$} \{1, \cdots, l \}$ in order for $\mathcal{G}$, when necessary (e.g., to  reply signing queries made by $\mathcal{F}$), to  play the role of  $\mathcal{S}_{j}$. Afterwards, $\mathcal{G}$ samples $\mathbf{S}_{j} \leftarrow \mathcal{D}_{\mathbb{Z}, \sigma}^{m \times k}$ and sets $\mathbf{T}: =\mathbf{A}_{j}\mathbf{S}_{j} \text{ (mod } q)$ and adds $\mathbf{T}$ to $\mathcal{P}$. Finally, $\mathcal{G}$ sends to the forger $\mathcal{F}$ the set $\mathcal{P}$ and the set of public keys $PK:=\{\mathbf{A}_i\}_{i\in [l]}$. The matrix $\mathbf{S}_{j}$ will be kept as a secret key.
+		
+		
+		
+		
+		\item \textbf{Queries.} The forger $\mathcal{F}$ adaptively makes $q_H$ hash queries to the random oracle which models the hash function $H$ in the real protocol and $q_S$ blind signing queries. 
+		%	Let $q_T=q_H+q_S$ be the total number of queries that the random oracle $H$ has to reply during the attack of $\mathcal{F}$. 
+		The algorithm $\mathcal{G}$ creates and maintains a list $L_H$ consisting of random oracle queries $(\mathbf{u}, C)\leftarrow_{\$} \mathbb{Z}_q^{n} \times \{0,1\}^n$ and their corresponding hash value $ \mathbf{c} \in D_{c}$, where $D_c:=\{ \mathbf{c}: \mathbf{c}\in \{-1,0,1\} ^{k}, \Vert \mathbf{c} \Vert_1 \leq \kappa \}$. Furthermore,  $\mathcal{G}$ randomly preselects $\mathcal{R}:=\{\mathbf{r}_1, \cdots, \mathbf{r}_{q_H} \} \leftarrow_{\$} D_c$ as a set of replies of $H$ and also chooses a random tape $\rho$. The solver $\mathcal{G}$ runs $\mathcal{F}(\mathcal{P}, PK, \rho)$ as a black-box routine as follows:
+		\begin{itemize}
+			\item \textbf{Random Oracle Queries.} Whenever $\mathcal{G}$ receives a query $(\mathbf{u}, C)$, it will check whether the query is in the list $L_H$ or not. If yes, $\mathcal{G}$ sends the corresponding hash value $\mathbf{c}$ to the forger $\mathcal{F}$. Otherwise, $\mathcal{G}$ opts the first unused $\mathbf{r}_i, i\in [q_H]$ from $\mathcal{R}$, assigns $\mathbf{c}:=\mathbf{r}_i,$ stores the query-hash value pair $((\mathbf{u}, C), \mathbf{c})$ in $L_H$ and sends $\mathbf{c}$ to the forger. 
+			\item 	\textbf{Signing Queries.} The forger $\mathcal{F}$ plays the role of the user, processing $q_S$ times the interactive blind ring signature protocol, while the solver $\mathcal{G}$ acts as the signer of the ring. If $\mathcal{F}$ wants to have the signature of a message $\mu$, the solver $\mathcal{G}$ will plays the role of the signer $\mathcal{S}_j$ and runs the \textsf{BRS.Sign} algorithm in Figure \ref{fig1} to  produce the required signature using the matrix $\textbf{S}_j$ as the secret key in Phase 3.
+		\end{itemize}
+		
+		\item 
+		\textbf{Output.} After at most $q_S$ signing queries,  with non-negligible probability $\delta$, the forger $\mathcal{F}$ eventually outputs $s:=q_S+1$  blind ring signatures $$(\mu_1, (\mathbf{z}_{1,i})_{i \in [l]}, \mathbf{c}_1, \mathbf{t}_1), \cdots, (\mu_s, (\mathbf{z}_{s,i})_{i \in [l]}, \mathbf{c}_s, \mathbf{t}_s),$$ where $\mu_1, \cdots, \mu_s$ are $s$ distinct messages. At the moment, the algorithm $\mathcal{G}$ predicts randomly an index $k \in [s]$ satisfying that $\mathbf{c}_k=\mathbf{r}_i$ for some $i \in [q_H]$. 
+		
+		Afterward, $\mathcal{G}$ samples new fresh random oracle answers $\{\mathbf{r}'_{i}, \cdots, \mathbf{r}'_{q_H}\} \leftarrow_{\$} D_c$ and then invokes $\mathcal{F}(\mathcal{P}, PK, \rho)$ again with $\mathcal{R}':=\{\mathbf{r}_1, \cdots, \mathbf{r}_{i-1}, \mathbf{r}'_{i}, \cdots, \mathbf{r}'_{q_H} \}$.
+		Among other values, the forger $\mathcal{F}$ outputs $({\mu'}_k, (\mathbf{z}'_{k,i})_{i \in [l]}, \mathbf{c}'_k, \mathbf{t}'_k)$. If $\mathbf{c}_k \neq \mathbf{c}'_k$ then $\mathcal{G}$ returns $$((\mathbf{z}_{k,i})_{i \in [l]}-\mathbf{S}_j \mathbf{c}_k , (\mathbf{z}'_{k,i})_{i \in [l]}-\mathbf{S}_j \mathbf{c}'_k) \text{ for all }  j \in [l],$$
+		in order to solve the \textsf{SIS} problem. If $\mathbf{c}_k = \mathbf{c}'_k$, the solver $\mathcal{G}$ retries $\mathcal{F}(\mathcal{P}, PK, \rho')$ at most $q_H^{s}$ times with a different random tape $\rho'$.
+	\end{enumerate}	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	\textbf{Analysis.}  The environment of $\mathcal{F}$ is perfectly simulated by $\mathcal{G}$ since the distribution of the matrix $\textbf{T}$, which is generated by sampling $\mathbf{S}_{j} \leftarrow \mathcal{D}_{\mathbb{Z}, \sigma}^{m \times k}$ with sufficiently large $\sigma$ then and computing $\mathbf{T}: =\mathbf{A}_{j}\mathbf{S}_{j} \text{ (mod } q)$, is close to uniform (see \cite[lemma 5.2]{GPV08} for more details). Moreover, rejection sampling is exploited before outputting $\mathbf{y}_j$ (in Phase 3) then $\mathbf{y}_j$ is independent of $\mathbf{S}_j$, thus $\mathcal{F}$ learns no information about $\mathbf{S}_j$ from receiving $\mathbf{y}_j$.  Therefore, the restarts happen with the same probability $\zeta$ as in the real scheme.  Obviously, there is at least one  signature not coming from a real interaction. The algorithm $\mathcal{G}$ guesses correctly the index of this signature with probability at least $1/s$. And $\mathbf{c}_k$ is a random oracle answer with probability $1/|D_c|$. Note that, with probability $1/2$, there is at least one of the reruns of $\mathcal{F}$  gives the same index pair $(i,k)$  such that $\mathbf{r}_i=\mathbf{c}_k$. Therefore, we can assume that the index pairs in two runs are the same. 
+	
+	Applying the forking lemma \cite[Lemma 3.1]{BN06} with noting that restarts happen with probability $\zeta$, we have that $\mathcal{F}$ is again successful in breaking the one-more unforgeability and outputs one more new signature $({\mu'}_k, (\mathbf{z}'_{k,i})_{i \in [l]}, \mathbf{c}'_k, \mathbf{t}'_k)$ with probability $\delta_{frk} \geq (1-\zeta) (\delta-1/|D_c|)((\delta-1/|D_c|)/q_H-1/|D_c|)$ using the same random oracle query as in the first run. Thus we have 
+	$$(\sum_{i \in [l]}\mathbf{A}_i\mathbf{z}_{k,i} -\mathbf{T}\mathbf{c}_k\text{ (mod } q), \mathsf{com}(\mu_k,\mathbf{t}_k))=(\sum_{i \in [l]}\mathbf{A}_i\mathbf{z}'_{k,i} -\mathbf{T}\mathbf{c}'_k\text{ (mod } q), \mathsf{com}(\mu'_k,\mathbf{t}'_k)).$$
+	Since then, we have that
+	$$\sum_{i \in [l]}\mathbf{A}_i\mathbf{z}_{k,i} -\mathbf{T}\mathbf{c}_k\text{ (mod } q)=\sum_{i \in [l]}\mathbf{A}_i\mathbf{z}'_{k,i} -\mathbf{T}\mathbf{c}'_k\text{ (mod } q).$$
+	Equivalently, 
+	\begin{equation}\label{eq1}
+	\sum_{i \in [l]}\mathbf{A}_i(\mathbf{z}_{k,i}-\mathbf{z}'_{k,i}) +\mathbf{T}(\mathbf{c}'_k-\mathbf{c}_k)=\textbf{0} \text{ (mod } q).
+	\end{equation}
+	Plugging  $\mathbf{T} =\mathbf{A}_{j}\mathbf{S}_{j} \text{ (mod } q)$ into Eq. \eqref{eq1}, we have
+	
+	\begin{equation}\label{eq2}
+	\sum_{i \in [l]\setminus \{j\}}\mathbf{A}_i(\mathbf{z}_{k,i}-\mathbf{z}'_{k,i}) +\mathbf{A}_{j}(\mathbf{z}_{k,j}-\mathbf{z}'_{k,j}+\mathbf{S}_{j}(\mathbf{c}'_k-\mathbf{c}_k))=\textbf{0} \text{ (mod } q).
+	\end{equation}
+	Set the matrix 
+	$$
+	\mathbf{A}:=[\mathbf{A}_1\|\cdots\|\mathbf{A}_{{j}-1}\|\mathbf{A}_{j}\|\mathbf{A}_{{j}+1}\|\cdots\|\mathbf{A}_l],$$ and
+	\begin{align*}
+	\widehat{\mathbf{z}}:=&[\mathbf{z}_{k,1}-\mathbf{z}'_{k,1},\cdots,\mathbf{z}_{k,{{j}-1}}-\mathbf{z}'_{k,{{j}-1}},\mathbf{z}_{k,j}-\mathbf{z}'_{k,j}+\mathbf{S}_{j}(\mathbf{c}'_k-\mathbf{c}_k),\\&\mathbf{z}_{k,{{j}+1}}-\mathbf{z}'_{k,{{j}+1}},\cdots,\mathbf{z}_{k,l}-\mathbf{z}'_{k,l}],
+	\end{align*}
+	from Equation \eqref{eq2} we have $\mathbf{A}\widehat{\mathbf{z}}=\mathbf{0} \text{ (mod } q)$.
+	
+	The next step is to prove that $\widehat{\mathbf{z}} \neq \mathbf{0}$ with probability non- negligible. In fact, by Lemma \ref{lem4}, there is another secret key $\mathbf{S'}_{j}$ such that $\mathbf{A}\mathbf{S}_{j}=\mathbf{A}\mathbf{S}'_{j} \text{ (mod } q)$ in which $\mathbf{S}_{j}$ and $\mathbf{S}_{j}$ have all the same columns but the $i$-th column with $i$ is the position that $\mathbf{c}_k[i] \neq \mathbf{c}'_k[i]$. Clearly, if $\mathbf{z}_{k,j}-\mathbf{z}'_{k,j}+\mathbf{S}_{j}(\mathbf{c}'_k-\mathbf{c}_k)=\mathbf{0}$ then $\mathbf{z}_{k,j}-\mathbf{z}'_{k,j}+\mathbf{S}'_{j}(\mathbf{c}'_k-\mathbf{c}_k) \neq \mathbf{0}$. Thus with probability at least $1/2$ we get $\widehat{\mathbf{z}}\neq 0$. Note that $\Vert \mathbf{z}_{k,i}\Vert\leq \eta\sigma_3\sqrt{m}$, $\Vert \mathbf{S}_{i}\Vert\leq \sigma\sqrt{m}$ and $\Vert \mathbf{c}_{k}\Vert\leq \sqrt{\kappa}$ for all $i \in [l]$. Hence, $\Vert \mathbf{z}_{k,i}-\mathbf{z'}_{k,i}\Vert\leq 2\eta\sigma_3\sqrt{m}$ for all $i \in [l]$,. Thus, $\Vert \widehat{\mathbf{z}}\Vert \leq (2l\eta\sigma_3+2\sigma\sqrt{\kappa})\sqrt{m}$.
+	Therefore, we have the success probability of $\mathcal{G}$ in solving the \textsf{SIS} problem \eqref{key} in this case is at least $$\delta_{solve} \geq \frac{1}{4s}\delta_{frk} \geq \frac{1}{4s}(1-\zeta) (\delta-1/|D_c|)((\delta-1/|D_c|)/q_H-1/|D_c|).$$
+	
+	Now, taking restarts happen in Phase 5 into account, we will show that if the adversarial user can forge a valid signature through a Phase 5 restart help, then $\mathcal{G}$ can solve the \textsf{SIS} problem stated in Equation \eqref{key}.  To trigger a restart in Phase 5, the forger sends to the signer \textsf{result}$:=((\mathbf{a}_i)_{i\in[l]}, \mathbf{b}, \mathbf{c}, C)$ which, together with the view of the signer $\mathcal{V}=(\mathbf{x},\mathbf{e}, (\mathbf{s}_i, \mathbf{y}_i)_{i \in [l]})$, satisfies all the following conditions:
+	\begin{align}
+	\mathbf{e}-\mathbf{b}=\mathbf{c}&=H(\mathbf{x}+\mathbf{w}+\mathbf{T}\mathbf{b} \text{ (mod } q), C, PK)\label{eq3},\\
+	\mathbf{c}&=H(\mathbf{w}+\mathbf{v}-\mathbf{T}\mathbf{c} \text{ (mod } q), C, PK) \label{eq4},\\
+	\Vert \mathbf{y}_{j}+\mathbf{a}_{j} \Vert &> \eta \sigma_3 \sqrt{m} \text{ for some } j  \in [l] \label{eq5},
+	\end{align}
+	where $\mathbf{x}=\sum_{i \in [l]}\mathbf{A}_i\mathbf{s}_i$, $\mathbf{w}=\sum_{i \in [l]}\mathbf{A}_i\mathbf{a}_i$, $\mathbf{v}=\sum_{i \in [l]}\mathbf{A}_i\mathbf{y}_i$.
+	Assume that the adversary can obtain a valid signature $ \Sigma^*=((\mathbf{z}'_i)_{i \in [l]}, \mathbf{c}',$ $ \mathbf{t}')$ (with probability at least $\delta$) from this restart. That is, for some $\mathbf{b}' \in \mathcal{D}_{\sigma_1}^k$ such that $\mathbf{e}=\mathbf{c}'+\mathbf{b}'$ we have,
+	\begin{align}
+	\mathbf{e}-\mathbf{b}'=\mathbf{c}'&=H(\mathbf{x}+\mathbf{w}+\mathbf{T}\mathbf{b}' \text{ (mod } q), C, PK)\label{eq31},\\
+	\mathbf{c}'&=H(\sum_{i \in [l]}\mathbf{A}_i\mathbf{z}'_i -\mathbf{T}\mathbf{c}'\text{ (mod } q), \mathsf{com}(\mu, \mathbf{t}'), PK) \label{eq41},\\
+	\Vert \mathbf{z}'_i\Vert &\leq \eta\sigma_3\sqrt{m} \text{ for all } i  \in [l] \label{eq51}.
+	\end{align}
+	With probability $1-1/|D_c|$ (how to compute this probability, see \cite[Subsection 4.6.1 in Chapter 4]{Guo2018})), we have  $\mathbf{c}'=\mathbf{c}$. Then by Equation \eqref{eq4} and Equation \eqref{eq41}, we have 
+	$$\mathbf{w}+\mathbf{v} \text{ (mod } q)=\sum_{i \in [l]}\mathbf{A}_i\mathbf{z}'_{i} \text{ (mod } q).$$
+	That is,
+	$$\sum_{i \in [l]}\mathbf{A}_i ( \mathbf{a}_i+\mathbf{y}_i) \text{ (mod } q)=\sum_{i \in [l]}\mathbf{A}_i\mathbf{z}'_{i} \text{ (mod } q).$$
+	Define
+	\begin{align*}
+	\widehat{\mathbf{z}}:=&[\mathbf{a}_1+\mathbf{y}_1-\mathbf{z}'_{1},\cdots,\mathbf{a}_l+\mathbf{y}_l-\mathbf{z}'_{l}].
+	\end{align*}
+	We have $\mathbf{A}\widehat{\mathbf{z}}=\mathbf{0}\text{ (mod } q)$. If 	$\widehat{\mathbf{z}}=0$, i.e., $ \mathbf{a}_i+\mathbf{y}_i=\mathbf{z}'_{i} $ for all $i \in [l]$, then we have $\Vert \mathbf{y}_{i}+\mathbf{a}_{i} \Vert \leq \eta \sigma_3 \sqrt{m} $ for all $i \in [l]$ (due to Equation \eqref{eq51})  which contradicts with Equation \eqref{eq5}. Hence, $\widehat{\mathbf{z}} \neq \mathbf{0}$ and we have $\Vert\widehat{\mathbf{z}} \Vert \leq (2l\eta\sigma_3+l\eta\sigma_2)\sqrt{m}$.  The success probability of  $\mathcal{G}$ in case the forger can get a valid signature through a restart is $\delta_{restart} \geq \delta(1-1/|D_c|)$.
+	
+	%An argument similar to \cite{Ruc10} shows that  in case $\mathbf{c'}\neq\mathbf{c} $, the adversary may succeed in getting the valid signature $ \Sigma^*=((\mathbf{z}'_i)_{i \in [l]}, \mathbf{c}',$ $ \mathbf{t}')$ by hiding $\mathbf{c}'$ in $\mathbf{e}$. More specifically, instead of sending the real pair $(\mathbf{b}', \mathbf{c}')$, the adversary sends the faked pair $(\mathbf{b}, \mathbf{c})$ to the signer such that $\mathbf{b} \neq \mathbf{b}'$, $\mathbf{c} \neq \mathbf{c}'$, and $\mathbf{e}=\mathbf{c}+\mathbf{b}=\mathbf{c}'+\mathbf{b}'$. Notice that, in this case, $(\mathbf{b}, \mathbf{c})$ still satisfies Equation \eqref{eq3} and Equation \eqref{eq4} (by Remark \ref{rem5}). Clearly, in this case, the adversary had to be able to predict that $\mathbf{c}'$ is the output of $H$ which will be accepted by the verifier \textsf{BRS.Verify} and from which he also computes $\mathbf{b}'=\mathbf{e}-\mathbf{c}'$. 
+	
+ 
+ 
+	
+	To sum up, we have proven that with overall success probability of $\delta_{overall} \geq \min (\delta_{solve},$ $ \delta_{restart})$, the solver $\mathcal{G}$ can solve the \textsf{SIS}$_{q,n,ml, \beta}$ problem where $$\beta=\max( (2l\eta\sigma_3+2\sigma\sqrt{\kappa})\sqrt{m}, (2l\eta\sigma_3+l\eta\sigma_2)\sqrt{m}).$$
+	%which is actually $\beta= (2l\eta\sigma_3+l\eta\sigma_2)\sqrt{m}$ for chosen parameters as done in Section \ref{paraset} below. \qed
+\end{proof}	
+
+
+\section{Parameter Setting}  \label{paraset}
+
+Basically, parameters in this work are set in a similar way to \cite{ZJZ+18}. We need parameters $n, q, k$ to make sure that the \textsf{SIS} problem is computationally infeasible to keep secret keys $\mathbf{S}_i$'s not to be recovered. To generate the key pairs, we invoke the trapdoor functions using the discrete Gaussian distribution $D_{\sigma}$ with $\sigma\geq L \cdot \omega(\sqrt{\log n})$ and $L=m^{1+\epsilon}$ for any $\epsilon >0$. 
+
+For security proofs, we need $m\geq 64+n \log q/\log (2d+1)$ via Lemma \ref{lem4}. We also need $m\geq 5n \log q$ for \textsf{TrapGen} works. So we can choose $m \geq \max\{64+n\cdot \log q/\log (2d+1), 5n\log q\}$.  The parameter $\kappa$ appearing in the hash function $H$ should be chosen to satisfy $2^{\kappa}\cdot {{k}\choose{\kappa}}  \geq 2^{100} $ in order to guarantee that the min-entropy of $H$ is at least $100$. As analyzed in Subsection \ref{correct}, we can set $M_i:=e^{1+1/288}$ for all $i \in [3]$. Accordingly, we then set $\sigma_1= 12\Vert \mathbf{c}\Vert=12\sqrt{\kappa}$, $\sigma_2= 12\Vert \mathbf{S}_j \mathbf{e}\Vert=12\sigma\eta\sigma_1\sqrt{mk}=144\sigma\eta\sqrt{mk\kappa}$ 
+and $\sigma_3= 12\Vert \mathbf{y}_i\Vert=12\eta\sigma_2\sqrt{m}=1728m\eta^2\sigma\sqrt{k\kappa}$.
+
+The real signature  is $\Sigma=((\mathbf{z}_i)_{i \in [l]}, \mathbf{c}, \mathbf{t}))$. Each component of $\mathbf{z}_i$ is of length at most $12\sigma_3$ with probability at least $1-2^{-100}$ by Lemma \ref{lem6}, so the signature bit-size is $lm\log (12\sigma_3)+n+\kappa$ bits. The secret key bit-size is $lmk\log(2d+1)$. The public key bit-size is $(lnm+nk)\log q$. 
+
+The parameter setting is summarized in Table\ref{tab3}.
+
+\begin{table}[t]
+	%   \begin{landscape}
+	\begin{center}
+		%\begin{adjustbox}{max width=\textwidth}
+		%	\resizebox{\textwidth}{!}{
+		\begin{tabular}{ |c|c| c|} 
+			\hline
+			\textbf{Parameters} & \textbf{Requirement}&\textbf{Description}\\
+			\hline
+			\hline
+			$n$&--&security parameter\\
+			$l$&--&number of ring members\\
+			
+			$q$&$poly(n)$, prime&modulo\\
+			
+			
+			$m$ &$\max(64+n\log q/\log (2d+1), 5n\log q)$& in Lemma \ref{lem4}, \textsf{TrapGen}\\
+			
+			$K$&$m^{1+\epsilon}$, for any $\epsilon>0$& in \textsf{SampleKey}\\
+			$\sigma$&$ \geq K \cdot \omega(\sqrt{\log n})$& in \textsf{SampleKey}\\
+			
+			
+			$d$&$\sigma \cdot \sqrt{m}$&in \textsf{BRS.KeyGen}\\
+			$k \text{ and } \kappa$& such that $2^{\kappa}\cdot {{k}\choose{\kappa}}  \geq 2^{100} $&in the hash function $H$\\
+			$\eta$&[1.1, 1.3]& in Lemma \ref{lem2}\\
+			\hline
+			
+			$M_1=M_2=M_3$&$\exp(1+1/288)$& \multirow{4}{*}{in the rejection sampling}\\
+			$\sigma_1$&$12\sqrt{\kappa}$&\\
+			$\sigma_2$&$12\sigma\eta\sigma_1\sqrt{mk}$&\\
+			
+			$\sigma_3$&$12\eta\sigma_2\sqrt{m}$&\\
+			
+			\hline
+			signature size&$lm\log (12\sigma_3)+n+\kappa$ bits &\\
+			secret key size&$lmk\log(2d+1)$ bits&\\
+			public key size&$(lnm+nk)\log q$ bits&\\
+			
+			\hline 
+		\end{tabular} 
+		%}
+		%\end{adjustbox} 
+	\end{center}
+	\caption{Parameter setting for our \textsf{BRS} scheme}
+	\label{tab3}
+\end{table} 
+
+
+\iffalse
+
+\section{Discussion}
+The paper \cite{WZZ18} proposed a new lattice-based ring signature scheme which is provably unforgeablility against adaptive chosen message in the random oracle model as an extension of the scheme without trapdoors. We would like to show that it seemed that there are some mistakes in the authors' argument, see \cite[Theorem 4.5, Case 2]{WZZ18}: Instead implying an equation resembling our Equation  \eqref{eq2} in form, the authors obtained 
+\begin{equation*}\label{eq6}
+\sum_{i \in [l]} \mathbf{A}_{i}(\mathbf{z}_{i}-\mathbf{z}'_{i}+\mathbf{S}_{i}(\mathbf{c}'-\mathbf{c}))=\textbf{0} \text{ (mod } q).
+\end{equation*}
+
+The paper \cite{ZJZ+18} tried to construct a new post-quantum blind signature based on the \textsf{SIS }problem. However, the authors used the hybrid arguments to prove its one-more property in which the random oracle is programmed to output the desired challenge. The approach seems not to be suitable in the context of the blind signature scheme proposed by the authors of \cite{ZJZ+18}. 
+
+\fi
+\section{Conclusions and Future Works}
+
+In this paper, we proposed, for the first time, a lattice-based blind ring signature scheme. Our scheme is proven to fulfill the anonymity and the blindness properties due to being constructed with the reject sampling technique . Moreover, the scheme is one-more unforgeable in the random oracle model under the hardness of \textsf{SIS} problem. 
+
+There have been several recent results in improving lattice-based (ring) signatures both on signature sizes and the hardness assumption (e.g. from module lattices), which can be utilized to improve our scheme. We will leave to apply these improvements as future works. One more interesting approach should be our next work is to design a blind ring signature without using trapdoor functions but, for example, basing on the idea of \cite{ABB+13}. Also, it is still open to construct a blind ring signature that is secure in the standard model. 
+
+\textbf{Acknowledgment.} The first author would like to thank Prof. Masaya Yasuda for his financial support. The authors would like to thank anonymous reviewers for their helpful comments.  
+\bibliographystyle{splncs04}
+\bibliography{references.bib}
+
+
+\end{document}
